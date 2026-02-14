@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wtffmpeg"
-version = "0.1.0"
+version = "0.2.0"
 description = "A command-line tool to translate natural language to ffmpeg commands using a local LLM."
 # You can change the author name and email.
 authors = [
@@ -24,6 +24,7 @@ classifiers = [
 dependencies = [
     "openai>=1.107.2",
     "pyperclip",
+    "prompt-toolkit",
 ]
 
 # This section creates the command-line script alias.
@@ -31,7 +32,13 @@ dependencies = [
 # in your virtual environment's bin/ directory. This executable will
 # run the `main` function from the `wtffmpeg.py` script.
 [project.scripts]
-wtff = "wtffmpeg:main"
+wtff = "wtffmpeg.wtff:main"
 
 [project.urls]
 "Homepage" = "https://github.com/scottvr/wtffmpeg" 
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
