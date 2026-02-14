@@ -27,7 +27,7 @@ Instead, you say what you want, review the generated command, optionally edit it
 
 The command is the point. The REPL was the intent. Truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them intersperse throughout bash logic, there are very few things I get right every tiime. 
 
-ffmpeg usage is often very much a process of running many different *almost right* commands, and altering the input options and flags in varying them until arriving at one or more commands that will no doubt be preserved in text documents or shell scripts for the user to refer to later.
+ffmpeg usage is often very much a process of running many different *almost right* commands, and altering the input options and flags and varying them until arriving at one or more commands that will no doubt be preserved in text documents or shell scripts for the user to refer to later.
 
 It is often the case that I will spend a lot of time learning how (and how now) to accomplish some specific thing , and then *never* need to do that exact thing again. 
 
