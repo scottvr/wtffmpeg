@@ -2,7 +2,7 @@
 without the chat UI inconvenience
 
 ## TL;DR (breaking CLI change, but the good kind)
-A snapshot of v0.1.0 was tagged as 'alpha' from the main branch. If you don't want to swith to the current (as of Feb 2026) beta release, you can pull that 'alpha' tagged release, or download tarballs or zips of it from github.
+A snapshot of v0.1.0 was tagged as 'alpha' from the main branch. If you don't want to switch to the current (as of Feb 2026) beta release, you can pull that 'alpha' tagged release, or download tarballs or zips of it from github.
 
 - The old `-i` / “interactive mode” is now the **default**.
 - Running `wtff` with no arguments drops you straight into a REPL.
