@@ -76,12 +76,12 @@ This is the intended interface.
 
 ----
 
-Spme people seem to prefer sending their first return stroke to the LLM at the ti,e of command invocation. I don't know why, but to preserve their workflow, you can one-shot yourr request the way many people seem to do today, which is like:
+Some people seem to prefer sending their first return stroke to the LLM at the time of command invocation. I don't know why, but to preserve their workflow, you can one-shot your request the way many people seem to do today, which is like:
 
 ```
 wtff "turn this directory of PNGs into an mp4 slideshow"
 ```
-This works, but it is essentil just "preloading your first request to the LLM. You aew still dropped into the hopefully now-pleasant REPL workflow.
+This works, but it is essentially  just "preloading your first request to the LLM. You are still dropped into the hopefully now-pleasant REPL workflow.
 
 If you really want single-shot, stateless execution, you can pass `--prompt-once`
 ```
@@ -99,7 +99,7 @@ This is intentionally boring and predictable.
 
 ----
 
-Bt default wtffmpeg's REPL retains conversational context, as well as command history, but you can control or disable tthat.
+By default wtffmpeg's REPL retains conversational context, as well as command history, but you can control or disable tthat.
 
 ```
 wtff --context-turns N
@@ -107,9 +107,9 @@ wtff --context-turns N
 where N is a number greater than or equal to zero that represents the number of conversational turns you'd like to keep in context, with 0 effectively making the REPL stateless, and higher numbers  imdicating a greater number of pairs of prompt/response (as well as growing to eat more RAM, tokens, etc, and eventually bringing your LLM to a point of struggling to appear coherent, but you are free to set this to whatever number is best for you. It defaults to 12.
 
 ## Installation
-When random Internet user were clersly getting more excitement out of wtffmpeg than I was, I tended to accept PR's that were of little obvious value to me, but I accepted someone's initial OPENAI API integrations, and maybe more than one installation method I felt e3re unnecessary since it has had a pyproject.toml since day one and ccould be installed with then pip, pipx, or uv, and it would install a stub, in the bin or scripts directory of your system of venv Python path. One patch included a documentation change describing how to symlink wtffmpeg.py into a system path so you can access it by typing `wtff` from any command-line. That was literally a feature I shipped on day 1 via the `setuptools` innate scripts mechanism. But, as I said, these people were actually wanting to use wtffmpeg so who am I to deny them joy or explain that the feature was already there and documenteed. *shrug*
+When random Internet users were clearly getting more excitement out of wtffmpeg than I was, I tended to accept PR's that were of little obvious value to me, but I accepted someone's initial OPENAI API integrations, and maybe more than one installation method I felt were unnecessary since it has had a pyproject.toml since day one and could be installed then with pip, pipx, or uv, and it would install a stub, in the bin or scripts directory of your system or venv Python path. One patch included a documentation change describing how to symlink wtffmpeg.py into a system path so you can access it by typing `wtff` from any command-line. That was literally a feature I shipped on day 1 via the `setuptools` innate scripts mechanism. But, as I said, these people were actually wanting to use wtffmpeg so who am I to deny them joy or explain that the feature was already there and documenteed? *shrug*
 
-But after I'm now finding auto-generated LLM video slop (it's literally just a screenshot of a browser loading the wtffmpeg github repo browser render of README.md with a low-rent verion of a NotebookLM-style "podcast" for audio.  It's funny. And sad. But also someone wrote in a newsletter calling `scottvr/wtffmpeeg` "Repo of the Week". A corporate marketing/tutorial video on how to use their synthetic data and partially-automated model/prompt pairing combination and pricing tool referred kindly to wtffmpeg, and kept a browser tab to the repo open throughout the video. (Sadly, he also showed the aforementioned silly-but-working on Phi prompt, and unsurprisingly ChatGPT could outperform the wtffmpeg jokey prompt with one that it wrote itself.)) But also... an this *was* surprising: the maker of the video actually went out of his way to acknowledge that in some cases wtffmpeg's ludicrous prompt actually worked better! Using Phi. (LOL)
+But after I'm now finding auto-generated LLM video slop (it's literally just a screenshot of a browser loading the wtffmpeg github repo browser render of README.md with a low-rent verion of a NotebookLM-style "podcast" for audio.  It's funny. And sad. But also someone wrote in a newsletter calling `scottvr/wtffmpeg` "Repo of the Week". A corporate marketing/tutorial video on how to use their synthetic data and partially-automated model/prompt pairing combination and pricing tool referred kindly to wtffmpeg, and kept a browser tab to the repo open throughout the video. (Sadly, he also showed the aforementioned silly-but-working-on-Phi prompt from wtffmpeg, and unsurprisingly ChatGPT could outperform the wtffmpeg joke-ish prompt with a system prompt that it wrote itself.) But also... and this *was* surprising: the maker of the video actually went out of his way to acknowledge that in some cases wtffmpeg's ludicrous prompt actually worked better! When tested using Phi. (LOL)
 
 But I digress. Where were we? Oh yes, installation. Just do this:
 ```
@@ -118,7 +118,7 @@ cd wtffmpeg
 pip install -e .
 ```
 
-(or pipx, if that's your preference. Or `uv pip install` if you like. But really, this just works and doesn't need incremental changes to the process. Maybe I will toss it up on PyPi, once the modularization refactor is complete. But regardless, just `pip install` it from source, amd `wtff` command will just work without any symlinking or special installer support needed. That is to say, that I'm taking the project on again, at least for a bit, and hopefully you will all find it useful. If not, it is opern source and you are free to fork it and shape it how you think it should be, but I might argue there are much better and more appropriate projects to fork a project from, that one that was ludicrous architecture by design and intent, and was simultaneously actually useful and fun, while being the most polarizing thing I've ever done on the Internet at large. 
+(or pipx, if that's your preference. Or `uv pip install` if you like. But really, this just works and doesn't need incremental changes to the process. Maybe I will package and toss it up on PyPi, once the modularization refactor is complete. But regardless, just `pip install` it from source, amd `wtff` command will just work without any symlinking or special installer support needed. That is to say, that I'm taking the project on again, at least for a bit, and hopefully you will all find it useful. If not, it is open source and you are free to fork it and shape it how you think it should be, but I might argue there are much better and more appropriate projects to fork a new project from, than one that was ludicrous architecture by design and intent, and yet was simultaneously actually useful and fun, while being the most polarizing thing I've ever done on the Internet at large. 
 
 ---
 
@@ -127,7 +127,7 @@ pip install -e .
 ## Environment Variables.
 These were graciously implemented by someone in the community. Thanks.
 
-- WTFFMPEG_MODEL: You can (but don't have to) specify a model name here. e.g, llama3, gpt-4o, codellama:7b)2
+- WTFFMPEG_MODEL: You can (but don't have to) specify a model name here. e.g, llama3, gpt-4o, codellama:7b
 - WTFFMPEG_LLM_API_URL: Base URL for a local or remote OpenAI-compatible API
 Defaults to http://localhost:11434 (Ollama)
 - WTFFMPEG_OPENAI_API_KEY: What else would this be? :-)
@@ -165,7 +165,7 @@ These are just for convenience. You cannot, for example, `!chdir` and actually c
 ----
 
 # Disclaimer
-`wtffmpeg` started as something I built to amuse myself. It accidentally became useful.
+`wtffmpeg` started as something I built to amuse myself. It accidentally turned out to be useful.
 
 It executes commands that can destroy your data if you are careless.
 Always review generated commands before running them.
