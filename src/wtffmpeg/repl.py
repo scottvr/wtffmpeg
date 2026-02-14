@@ -1,8 +1,12 @@
 import sys
 import subprocess
-from pathlib import Path
 import pyperclip
+from wtffmpeg.llm import OpenAI, SYSTEM_PROMPT, generate_ffmpeg_command
 
+from pathlib import Path
+HISTFILE = Path("~/.wtff_history").expanduser()
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
 
 def execute_command(command: str) -> int:
     """Execute a shell command, streaming output. Returns exit code."""

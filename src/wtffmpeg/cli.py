@@ -1,3 +1,9 @@
+import argparse
+import os
+
+from wtffmpeg.llm import build_client_and_model, generate_ffmpeg_command
+from wtffmpeg.repl import repl, single_shot
+
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(

@@ -32,7 +32,7 @@ dependencies = [
 # in your virtual environment's bin/ directory. This executable will
 # run the `main` function from the `wtffmpeg.py` script.
 [project.scripts]
-wtff = "wtffmpeg.cl:imain"
+wtff = "wtffmpeg.cli:main"
 
 [project.urls]
 "Homepage" = "https://github.com/scottvr/wtffmpeg" 
