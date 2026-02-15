@@ -1,6 +1,6 @@
 ![wtffmpeg](https://scottvr.github.io/images/wtff.png)
 
-## TL;DR Nearly breaking changes to some command-line options. It needed to be done sooner rather than later. It's for the g0oo0d of us all.
+## TL;DR Nearly breaking changes to some command-line options. It needed to be done sooner rather than later. It's for the good of us all.
 
 A snapshot of v0.1.0 was tagged as 'alpha' from the main branch. If you don't want to switch to the current (as of Feb 2026) beta release, you can pull that 'alpha' tagged release, or download tarballs or zips of it from github.
 
