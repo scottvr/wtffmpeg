@@ -1,6 +1,3 @@
-# wtffmpeg - natural language to ffmpeg
-without the chat UI inconvenience
-
 ![wtffmpeg](https://scottvr.github.io/images/wtff.png)
 
 ## TL;DR (breaking CLI change, but the good kind)
