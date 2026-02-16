@@ -59,7 +59,7 @@ By default it used Phi (locally)  and then slowly and inadvertantly through tria
 As wtffmpeg continues to improve as it is in active development, that big ol' cheat sheet of a system prompt could actually be a hindrance when using a SoTA model. This is why it is being retired to a profile labeled "cheatsheet' in the next release, along with a handful of other profiles enabled by the new `--profile <list>`, where <list> is a plain-text file pointed to by an avsolute path, or a "profile name" if you want to use a profile from youe wtffmpeg profile directory. Anyway, some (even the v0.1.0 Phi-tailored joke) are shipped in the repo, but in the end it's just text, so you are free to use whatever you choose.
 
 
-## Examples
+## Usage/Examples
 
 ```bash
 $ wtff "convert test_pattern.mp4 to a gif"
@@ -72,18 +72,16 @@ Execute? [y/N], (c)opy to clipboard:
 
 If you say y, it runs.
 If you say c, it copies.
-If you say anything else, nothing happens.
-
-You stay in the REPL. As I just stream-of-consciousnesseed a lot of words on  the topic of, it's ;iterally the point.
+If you say anything else, nothing happens. You stay in the REPL. 
 
 Running
 ```
 wtff
 ```
-It drops you into an interactive session where importantly:
-- Up/down arrow history works.
+drops you into an interactive session where importantly:
+- Up/down arrow history browsing works.
 - Left/right editing works.
-- History is persisted to ~/.wtff_history.
+- Prompt history is persisted to ~/.wtff_history.
 - Each turn builds conversational context unless you tell it not to.
 
 This is the intended interface.
@@ -95,9 +93,9 @@ Some people seem to prefer sending their first return stroke to the LLM at the t
 ```
 wtff "turn this directory of PNGs into an mp4 slideshow"
 ```
-This works, but it is essentially  just "preloading your first request to the LLM. You are still dropped into the hopefully now-pleasant REPL workflow.
+This works, but it is essentially  just "preloading your first request to the LLM. You are still dropped into the REPL workflow.
 
-If you really want single-shot, stateless execution, you can pass `--prompt-once`
+If you really want single-shot, stateless execution, you can pass `--prompt-once`:
 ```
 wtff --prompt-once "extract the audio from lecture.mp4"
 ```
@@ -113,7 +111,7 @@ This is intentionally boring and predictable.
 
 ----
 
-By default wtffmpeg's REPL retains conversational context, as well as command history, but you can control or disable tthat.
+By default wtffmpeg's REPL retains conversational context, so that the LLM the **wtffmpeg** makes use of, is aware of each request (as well as command history) prior to the one presently being evaluated, but you can control or even disable that:
 
 ```
 wtff --context-turns N
@@ -121,20 +119,20 @@ wtff --context-turns N
 where N is a number greater than or equal to zero that represents the number of conversational turns you'd like to keep in context, with 0 effectively making the REPL stateless, and higher numbers  imdicating a greater number of pairs of prompt/response (as well as growing to eat more RAM, tokens, etc, and eventually bringing your LLM to a point of struggling to appear coherent, but you are free to set this to whatever number is best for you. It defaults to 12.
 
 ## Installation
-When random Internet users were clearly getting more excitement out of wtffmpeg than I was, I tended to accept PR's that were of little obvious value to me, but I accepted someone's initial OPENAI API integrations, and maybe more than one installation method I felt were unnecessary since it has had a pyproject.toml since day one and could be installed then with pip, pipx, or uv, and it would install a stub, in the bin or scripts directory of your system or venv Python path. One patch included a documentation change describing how to symlink wtffmpeg.py into a system path so you can access it by typing `wtff` from any command-line. That was literally a feature I shipped on day 1 via the `setuptools` innate scripts mechanism. But, as I said, these people were actually wanting to use wtffmpeg so who am I to deny them joy or explain that the feature was already there and documenteed? *shrug*
-
-But after I'm now finding auto-generated LLM video slop (it's literally just a screenshot of a browser loading the wtffmpeg github repo browser render of README.md with a low-rent verion of a NotebookLM-style "podcast" for audio.  It's funny. And sad. But also someone wrote in a newsletter calling `scottvr/wtffmpeg` "Repo of the Week". A corporate marketing/tutorial video on how to use their synthetic data and partially-automated model/prompt pairing combination and pricing tool referred kindly to wtffmpeg, and kept a browser tab to the repo open throughout the video. (Sadly, he also showed the aforementioned silly-but-working-on-Phi prompt from wtffmpeg, and unsurprisingly ChatGPT could outperform the wtffmpeg joke-ish prompt with a system prompt that it wrote itself.) But also... and this *was* surprising: the maker of the video actually went out of his way to acknowledge that in some cases wtffmpeg's ludicrous prompt actually worked better! When tested using Phi. (LOL)
-
-But I digress. Where were we? Oh yes, installation. Just do this:
+Just do this:
 ```
 git clone https://github.com/scottvr/wtffmpeg.git
 cd wtffmpeg
 pip install -e .
 ```
 
-(or pipx, if that's your preference. Or `uv pip install` if you like. But really, this just works and doesn't need incremental changes to the process. Maybe I will package and toss it up on PyPi, once the modularization refactor is complete. But regardless, just `pip install` it from source, amd `wtff` command will just work without any symlinking or special installer support needed. That is to say, that I'm taking the project on again, at least for a bit, and hopefully you will all find it useful. If not, it is open source and you are free to fork it and shape it how you think it should be, but I might argue there are much better and more appropriate projects to fork a new project from, than one that was ludicrous architecture by design and intent, and yet was simultaneously actually useful and fun, while being the most polarizing thing I've ever done on the Internet at large. 
+or use pipx, if that's your preference. Or even `uv pip install` if you like. But really, this just works and is the suggested method.
 
----
+On this topic, I have removed some earlier README changes that were sent to me by PR from a GitHub user. The PR added some steps about using `uv` and manually creating a `wtff` symlink somewhere in your PATH.  I accepted the PR because I was feeling a little bit lazy and generous and rather than ask them to open an Issue explaining what problem the PR was solving I just merged it. Besides, I considered that perhaps the PR  submitter was ome of the students I had read about somewhere that are required to "get a PR approved by an Open Source project" as part of coursework, and found the idea that **wtffmpeg** could help with that a pleasant idea, so I merged it.  (hey, I had released **wtffmpeg** as a lark that was actually useful. sorry.)
+
+In any case, now that this project has gotten much more attention that I expected, and I have since refactored the single script into multiple modules, so his method (which was unnecessary even when I accepted it) is no longer valid.  The reason I bring all this up is to say that absolutely I will accept contributions from the community, but if it's something like that (A different way to install it; why?) please open an Issue. If there is a bug, we can address it. If I had been a better steward, I would have rejected the PR and explained why it was unnecessary. `pip install .`  from source, and `wtff` just works,  without any symlinking or any other support needed. 
+
+Which brings me to some stuff added by merging another PR from a user fork: OpenAI API support, and exposing the configuration thereof via env:
 
 # Configuration
 
@@ -175,8 +173,6 @@ Lines starting with ! are executed as shell commands:
 ```
 
 These are just for convenience. You cannot, for example, `!chdir` and actually change your REPL process dir. (Though convenient `/cd` (slash commands) may be a thing soon.)
-
-----
 
 # Disclaimer
 `wtffmpeg` started as something I built to amuse myself. It accidentally turned out to be useful.
