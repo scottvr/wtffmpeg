@@ -39,14 +39,18 @@ Often, complex `ffmpeg` usage is  very much a process of running many different 
 
 Prior to **wtffmpeg**, it was typical for me to spend a lot of time learning how (and *how not*) to accomplish some specific task with ffmpeg, and then *never* need to do that exact thing again, so..?
 
-So, if I am honest, I will admit that *every* ffmpeg session that accomplishes anything useful or meaningful is already an exercise in up-arrow, command-history editing, and evolving incremental command-line mutations until finally one adaptation naturally selects to reproduce and pass on hard-won progress to the mext generation.  Or something like it anyway.  
+So, if I am honest, I will admit that *every* `ffmpeg` session that accomplishes anything useful or meaningful is already an exercise in up-arrow, command-history editing, and evolving incremental command-line mutations until finally one adaptation naturally selects to reproduce and pass on hard-won progress to the next generation of command.  Or something like it anyway.  
 
-So... if I acknowledge that as the truth, then using a REPL for ffmpeg that is actually very often *at least as correct* the first time as I would have been, going it alone - with search engines a decreasing return on investment of our time. each time we inexplicably go back hoping search enshittificatiom in over and... let's be intellectually  honest: the LLMs are at least *close to correct* about as often as I am. 
+So... if I acknowledge that as the truth, then using a **etffmpeg** as a REPL for `ffmpeg` that is actually very often *at least as correct* the first time as I would have been  going it alone - and with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over and...
 
-ffmpeg usage, for me, is already very non-deterministic. 
+Let's be intellectually  honest: the LLMs are at least *close to correct* about as often as I am. `ffmpeg` usage, for me, is already very non-deterministic. 
 ffmpeg is just enormously powerful, and its list of capabilities and ways to affect their outcome is immense.
 
-`wtffmpeg` is an auxillary tool for *using* ffmpeg. The ability of your command history and your knowledge, to couple directly in a command-line interface, while the model's responses are shaped and improved throughout your experimentation session of discoveries actually makes this silly thing I made as a joke  into something I now have an obligation to improve and maintain because  - wherher you approve of  it on moral grounds or not, and you can be offended by it on intellectual grounds if you care to be -  but "ffmpeg cli configurator and experimental command lab assistant" is a perfect use case for LLMs.
+**wtffmpeg** is an auxillary tool for *using* ffmpeg. The ability of your command history and your knowledge to couple directly in a command-line interface, while the model's responses are shaped and improved throughout your experimentation session of discoveries actually makes this silly thing that I initially made as a joke into something I now have an obligation to improve and maintain because,..
+
+**whether you disapprove of  it on moral grounds or not**, and you can be offended by it on intellectual grounds if you care to be, the fact is that **"ffmpeg cli configurator and experimental command lab assistant"** is a perfect use case for LLMs.
+
+### A note about system prompts
 
 I initially shipped `wtffmpeg` as a tiny REPL app with a huge system prompt that was arguably more valuable as a cheat sheet than as a generalizable input prompt for LLMs to "be good at ffmpeg".
 
