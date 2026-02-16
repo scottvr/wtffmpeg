@@ -165,9 +165,9 @@ The reason I bring all this up is to say that absolutely I will accept contribut
 
 Which brings me to a PR submitted from another user fork: OpenAI API support, and exposing the configuration thereof via env:
 
-# Configuration
+## Configuration
 
-## Environment Variables.
+### Environment Variables.
 These were graciously implemented by someone in the community. Thanks.
 
 - WTFFMPEG_MODEL: You can (but don't have to) specify a model name here. e.g, llama3, gpt-4o, codellama:7b
@@ -175,6 +175,9 @@ These were graciously implemented by someone in the community. Thanks.
 Defaults to http://localhost:11434 (Ollama)
 - WTFFMPEG_OPENAI_API_KEY: What else would this be? :-)
 - WTFFMPEG_BEARER_TOKEN: Bearer token for other OpenAI-compatible services.
+
+### Add something about /slash ops
+Later.
 
 # Disclaimer
 `wtffmpeg` started as something I built to amuse myself. It accidentally turned out to be useful.
