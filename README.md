@@ -21,7 +21,7 @@ It is intended to eliminate a common workflow where you:
 
 Instead, `wtffmpeg` lets you say what you want, review the generated command, optionally edit it, and then decide whether to run it.
 
-The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do someyhing like 
+The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
 ```
 wtffmpeg> ok now just like that,
 but have it create chapters in the
