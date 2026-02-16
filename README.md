@@ -21,7 +21,7 @@ It is intended to eliminate a common workflow where you:
 1. Search Stack Overflow
 2. Read a 1000-word explanation
 3. Copy/paste/typo misunderstand one or more conflicting amswers
-5. Read help/usage because the Internet strangers only got you very xlosw to what you want to do.
+5. Read help/usage because the Internet strangers only got you very close to what you want to do.
 6. Repeat. (And repeat the entire workflow the next time you need to do something new.)
 
 Instead, `wtffmpeg` lets you say what you want, review the generated command, optionally edit it, and then decide whether to run it.
