@@ -1,0 +1,10 @@
+# name: null
+# desc: a blank system prompt for exactly that purpose
+#
+# and also to demonstrate that lines starting with a # are ignnored
+# so you can do "front matter" style tagging if you like (as above)
+#
+# and also to demonstrate that filename with or withou txt is supported 
+# if you have a filename and a filename.txt, the one with no extension 
+# will take precedence, so "--profile filename" and "--profile filename.txt"
+# but having both files with the same basename is probably a bad idea. Just sayin' 

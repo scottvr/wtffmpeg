@@ -1,7 +1,7 @@
 import sys
 import subprocess
 import pyperclip
-from wtffmpeg.llm import OpenAI, SYSTEM_PROMPT, generate_ffmpeg_command
+from wtffmpeg.llm import OpenAI, generate_ffmpeg_command
 
 from pathlib import Path
 HISTFILE = Path("~/.wtff_history").expanduser()
@@ -36,9 +36,9 @@ def print_command(cmd: str):
     print("------------------------------")
 
 
-def single_shot(prompt: str, client: OpenAI, model: str, *, do_copy: bool, do_exec: bool) -> int:
+def single_shot(prompt: str, client: OpenAI, model: str, *, do_copy: bool, do_exec: bool, profile: Profile) -> int:
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": profile.text},
         {"role": "user", "content": prompt},
     ]
 
@@ -67,10 +67,10 @@ def single_shot(prompt: str, client: OpenAI, model: str, *, do_copy: bool, do_ex
         return 0
 
 
-def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int):
+def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, profile: Profile):
     session = PromptSession(history=FileHistory(str(HISTFILE)))
 
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    messages = [{"role": "system", "content": profile.text}]
 
     if preload:
         messages.append({"role": "user", "content": preload})    # preload is "safe landing": run once, then drop into repl

@@ -42,3 +42,8 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[options]
+include-package-data = true
+[tool.setuptools.package-data]
+"wtffmpeg" = ["profiles/*"]

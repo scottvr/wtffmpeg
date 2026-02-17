@@ -1,9 +1,20 @@
 import argparse
 import os
 
-from wtffmpeg.llm import build_client_and_model, generate_ffmpeg_command
-from wtffmpeg.repl import repl, single_shot
+from .llm import build_client_and_model, generate_ffmpeg_command, list_profiles
+from .repl import repl, single_shot
+from .config import AppConfig
 
+DEFAULT_PROFILE_NAME = "minimal"  # choose this and ship it as a built-in
+
+def _resolve_profile_spec(args) -> str:
+    # Precedence: CLI -> env -> default
+    if getattr(args, "profile", None):
+        return args.profile
+    env = os.environ.get("WTFFMPEG_PROFILE")
+    if env:
+        return env
+    return DEFAULT_PROFILE_NAME
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
@@ -79,6 +90,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="How many prior user/assistant turns to include in REPL requests (0 = stateless).",
     )
 
+    p.add_argument("--profile", type=str, default=None, help="Profile name or path")
+    p.add_argument("--list-profiles", action="store_true", help="List available profiles and exit")
+    p.add_argument("--profile-dir", type=Path, default=None, help="Override ~/.wtffmpeg/profiles")
+
     return p
 
 
@@ -86,17 +101,49 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
+    if args.list_profiles:
+        avail = list_profiles(getattr(args, "profile_dir", None))
+        print("User profiles:")
+        for n in avail["user"]:
+            print(f"  {n}")
+        print("Built-in profiles:")
+        for n in avail["builtin"]:
+            print(f"  {n}")
+        raise SystemExit(0)
+
+    profile_spec = _resolve_profile_spec(args)
+    profile = load_profile(profile_spec, args.profile_dir) 
+    if profile.source == "path":
+        print(f"Profile: {profile.name} (path)")
+    elif profile.source == "user":
+        print(f"Profile: {profile.name} (user)")
+    else:
+        print(f"Profile: {profile.name} (built-in)")
+
+
+    
+    cfg = AppConfig(
+        profile=profile,
+        context_turns=args.context_turns,
+        copy=args.copy,
+        exec_=args.exec_,
+        prompt_once=args.prompt_once,
+        preload_prompt=args.prompt,  # positional prompt
+    )
+
     client, model = build_client_and_model(args)
 
-    # Single-shot mode wins if explicitly requested.
-    if args.prompt_once is not None:
-        rc = single_shot(args.prompt_once, client, model, do_copy=args.copy, do_exec=args.exec_)
+    if cfg.prompt_once is not None:
+        rc = single_shot(
+            cfg.prompt_once, client, model,
+            profile=cfg.profile,
+            do_copy=cfg.copy,
+            do_exec=cfg.exec_,
+        )
         raise SystemExit(rc)
 
-    # Default: REPL, optionally with preload prompt (positional)
-    repl(args.prompt, client, model, args.context_turns)
+    repl(cfg.preload_prompt, client, model, cfg.context_turns, profile=cfg.profile)
     raise SystemExit(0)
-
 
 if __name__ == "__main__":
     main()
