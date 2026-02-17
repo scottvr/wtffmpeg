@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from .llm import build_client_and_model, list_profiles, load_profile
+from .llm import build_client_and_model, list_profiles, load_profile, verify_connection
 from .repl import repl, single_shot 
 from .config import AppConfig
 from pathlib import Path
@@ -130,18 +130,25 @@ def main():
         preload_prompt=args.prompt,  # positional prompt
     )
 
-    client, model = build_client_and_model(args)
+    target = build_client_and_model(args)
+
+    if target.base_url:
+        print(f"LLM endpoint: {target.base_url}  model: {target.model}")
+    else:
+        print(f"LLM endpoint: OpenAI  model: {target.model}")
+
+    verify_connection(target.client, target.base_url)
 
     if cfg.prompt_once is not None:
         rc = single_shot(
-            cfg.prompt_once, client, model,
+            cfg.prompt_once, target.client, target.model,
             profile=cfg.profile,
             do_copy=cfg.copy,
             do_exec=cfg.exec_,
         )
         raise SystemExit(rc)
 
-    repl(cfg.preload_prompt, client, model, cfg.context_turns, profile=cfg.profile)
+    repl(cfg.preload_prompt, target.client, target.model, cfg.context_turns, profile=cfg.profile)
     raise SystemExit(0)
 
 if __name__ == "__main__":

@@ -19,6 +19,14 @@ class Profile():
     path: Optional[Path]
     text: str
 
+@dataclass(frozen=True)
+class LLMTarget:
+    client: OpenAI
+    model: str
+    base_url: Optional[str]  # None for official OpenAI default
+    provider: str            # "openai" | "compat"
+
+
 DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
 BUILTIN_PROFILES_PKG = "wtffmpeg.profiles"  # package data dir: src/wtffmpeg/profiles/
 
@@ -150,6 +158,54 @@ def build_client_and_model(args) -> tuple[OpenAI, str]:
     api_key = args.bearer_token if args.bearer_token else "ollama"
     client = OpenAI(base_url=base_url, api_key=api_key)
     return client, model
+import os
+from dataclasses import dataclass
+from typing import Optional
+
+from openai import OpenAI
+
+@dataclass(frozen=True)
+class LLMTarget:
+    client: OpenAI
+    model: str
+    base_url: Optional[str]
+    provider: str  # "openai" or "compat"
+
+def build_client_and_model(args) -> LLMTarget:
+    model = args.model
+
+    # 1) Official OpenAI
+    if args.api_key:
+        client = OpenAI(api_key=args.api_key)
+        if model == "gpt-oss:20b":
+            model = "gpt-4o"
+        return LLMTarget(client=client, model=model, base_url=None, provider="openai")
+
+    base_url = (args.url or "http://localhost:11434").rstrip("/")
+    if not base_url.endswith("/v1"):
+        base_url = base_url + "/v1"
+
+    if base_url == "http://localhost:11434/v1" and not os.environ.get("WTFFMPEG_LLM_API_URL") and args.url == "http://localhost:11434":
+        print("INFO: Defaulting to local Ollama at http://localhost:11434 (OpenAI-compatible: /v1)")
+
+    api_key = args.bearer_token if args.bearer_token else "ollama"
+    client = OpenAI(base_url=base_url, api_key=api_key)
+
+    return LLMTarget(client=client, model=model, base_url=base_url, provider="compat")
+
+def verify_connection(client: OpenAI, base_url: str | None) -> None:
+    """
+    Raises a RuntimeError with a helpful message on failure.
+    """
+    try:
+        # Cheap request; no tokens.
+        client.models.list()
+    except Exception as e:
+        target = base_url or "https://api.openai.com/v1"
+        raise RuntimeError(
+            f"Unable to reach LLM endpoint: {target}\n"
+            f"Underlying error: {type(e).__name__}: {e}"
+        ) from e
 
 
 def generate_ffmpeg_command(messages: list[dict], client: OpenAI, model: str) -> Tuple[str, str]:
