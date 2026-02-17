@@ -3,10 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, Literal
 import os
 
-try:
-    from importlib import resources as importlib_resources
-except Exception:  # pragma: no cover
-    import importlib_resources  # type: ignore
+import importlib.resources  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -17,7 +14,6 @@ class Profile():
     text: str
 
 DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
-BUILTIN_PROFILES_PKG = "wtffmpeg.profiles"  # package data dir: src/wtffmpeg/profiles/
 
 def _looks_like_path(spec: str) -> bool:
     if spec.startswith(("~", ".", os.sep)):
@@ -54,7 +50,7 @@ def list_profiles(profile_dir: Path | None = None) -> dict[str, list[str]]:
 
     builtin_names: set[str] = set()
     try:
-        files = importlib_resources.files(BUILTIN_PROFILES_PKG)
+        files = importlib.resources.files('wtffmpeg').joinpath('profiles')
         for entry in files.iterdir():
             if entry.is_file():
                 builtin_names.add(entry.name)
@@ -100,7 +96,7 @@ def load_profile(profile_spec: str, profile_dir: Path | None = None) -> Profile:
 
     builtin_candidates = [spec, f"{spec}.txt"]
     try:
-        files = importlib_resources.files(BUILTIN_PROFILES_PKG)
+        files = importlib.resources.files('wtffmpeg').joinpath('profiles')
         for fname in builtin_candidates:
             entry = files / fname
             if entry.is_file():

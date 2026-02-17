@@ -110,7 +110,7 @@ def main():
     
     cfg = resolve_config(args)
     
-    print(f"Profile: {cfg.profile.name} ({cfg.profile.path})")
+    print(f"Profile: {cfg.profile.name}")
 
     client  = build_client(cfg)
 
