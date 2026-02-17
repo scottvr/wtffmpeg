@@ -1,9 +1,9 @@
+from __future__ import annotations
 from openai import OpenAI
 from typing import Tuple
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Literal, Optional
-from __future__ import annotations
 import os
 
 try:
