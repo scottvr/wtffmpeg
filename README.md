@@ -26,7 +26,7 @@ It is intended to eliminate a common workflow where you:
 
 Instead, `wtffmpeg` lets you say what you want, review the generated command, optionally edit it, and then decide whether to run it.
 
-The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
+The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history in the LLM's context (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
 ```
 wtffmpeg> ok now just like that,
 but have it create chapters in the
@@ -34,7 +34,7 @@ video container, using points when
 audio is below some threshold for
 more than 100 milliseconds"
 ```
-and to have the LLM know what "just like that" means, because it knows what command you are referring to, is quite powerful. 
+and to have the LLM know what "just like that" means, because it knows what command you are referring to, is quite powerful. As is the ability to navigate your command (and prompt) history as you would in your normal shell cli shouldn't be understated.
 
 The truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them interspersed throughout bash logic, there are very few things I get right every tiime. 
 
