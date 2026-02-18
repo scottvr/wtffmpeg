@@ -1,4 +1,4 @@
-![wtffmpeg](https://scottvr.github.io/images/wtff.png?234)
+![wtffmpeg logo chopped and screwed to look like wtffmpeg?](https://scottvr.github.io/images/wtff.png?234)
 
 ## TL;DR: Nearly-breaking changes to some command-line options. 
 - *A snapshot of v0.1.0 was tagged as 'alpha' from the main branch, if you really want the old hacky behavior* 
