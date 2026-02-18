@@ -1,13 +1,18 @@
-![wtffmpeg logo chopped and screwed to look like wtffmpeg?](https://scottvr.github.io/images/wtff.png?234)
+## WTFfmpeg
 
-## TL;DR: Nearly-breaking changes to some command-line options. 
-- *A snapshot of v0.1.0 was tagged as 'alpha' from the main branch, if you really want the old hacky behavior* 
+Update! I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here it is in action!
 
-- If you previously used `wtff "some prompt"`: that still works, but now it **preloads context and then drops you into the REPL** instead of exiting immediately. If you truly want a single-shot, non-interactive invocation, there is a flag for that (see below).
+https://github.com/user-attachments/assets/75222305-efe3-4581-9172-b6d76ad37eba
+
+
+I recorded a video of installing the package, and performing a few commands within `wtffmpeg` to demonstrate why it's gone from "silly thing that got polarized reactiond" (and AI-narrated videos made by scam content farmers on YouTube, as well as some thoughtful reactions from people spinning off other useful endeavors featuring wtffmpeg as inspiration and giving it shoutouts!) to actually useful - and now **useable** - tool. (See what I meant about  my tendency to ramble? Sorry.)
 
 ---
 
 ## WTF is this? `ffmpeg`?
+
+
+![wtffmpeg logo chopped and screwed to look like wtffmpeg?](https://scottvr.github.io/images/wtff.png?234)
 
 `wtffmpeg` is a command-line tool that uses a Large Language Model (LLM) to translate plain-English descriptions of video or audio tasks into **actual, executable `ffmpeg` commands**.
 
