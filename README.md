@@ -5,7 +5,7 @@ Update! I have a tendency to use _1000 words_ when a picture might suffice. So, 
 https://github.com/user-attachments/assets/75222305-efe3-4581-9172-b6d76ad37eba
 
 
-I recorded a video of installing the package, and performing a few commands within `wtffmpeg` to demonstrate why it's gone from "silly thing that got polarized reactiond" (and AI-narrated videos made by scam content farmers on YouTube, as well as some thoughtful reactions from people spinning off other useful endeavors featuring wtffmpeg as inspiration and giving it shoutouts!) to actually useful - and now **useable** - tool. (See what I meant about  my tendency to ramble? Sorry.)
+I recorded a video of installing the package, and performing a few commands within `wtffmpeg` to demonstrate why it's gone from "silly thing that got polarized reactions" (and AI-narrated videos made by scam content farmers on YouTube, as well as some thoughtful reactions from people spinning off other useful endeavors featuring wtffmpeg as inspiration and giving it shoutouts!) to actually useful - and now **useable** - tool. (See what I meant about  my tendency to ramble? Sorry.)
 
 ---
 
