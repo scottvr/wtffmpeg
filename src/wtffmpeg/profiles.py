@@ -5,7 +5,6 @@ import os
 
 import importlib.resources  # type: ignore
 
-
 @dataclass(frozen=True)
 class Profile():
     name: str

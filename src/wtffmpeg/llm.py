@@ -6,12 +6,6 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 import sys
 
-@dataclass(frozen=True)
-class LLMTarget:
-    client: OpenAI
-    model: str
-    base_url: Optional[str]
-    provider: str  # "openai" or "compat"
 
 def verify_connection(client: OpenAI, base_url: str | None) -> None:
     """
@@ -22,10 +16,18 @@ def verify_connection(client: OpenAI, base_url: str | None) -> None:
         client.models.list()
     except Exception as e:
         target = base_url or "https://api.openai.com/v1"
-        raise RuntimeError(
-            f"Unable to reach LLM endpoint: {target}\n"
-            f"Underlying error: {type(e).__name__}: {e}"
-        ) from e
+        parts = [f"Unable to reach LLM endpoint: {target}",
+                 f"Underlying error: {type(e).__name__}: {e!r}"]
+
+        # Walk __cause__ chain (httpx usually lives here)
+        c = getattr(e, "__cause__", None)
+        depth = 0
+        while c is not None and depth < 6:
+            parts.append(f"Caused by: {type(c).__name__}: {c!r}")
+            c = getattr(c, "__cause__", None)
+            depth += 1
+
+        raise RuntimeError("\n".join(parts)) from e
 
 def generate_ffmpeg_command(messages: list[dict], client: OpenAI, model: str) -> Tuple[str, str]:
     """Generate a single ffmpeg command from the LLM, and try to strip markdown/commentary."""

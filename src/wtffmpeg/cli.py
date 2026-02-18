@@ -110,8 +110,6 @@ def main():
     args = parser.parse_args()
 
     cfg = resolve_config(args)
-    print(f"Profile: {cfg.profile.name}")
-
     
     if args.list_profiles:
         avail = list_profiles(cfg.profile_dir)
@@ -127,10 +125,10 @@ def main():
 
     if cfg.prompt_once is not None:
         rc = single_shot(cfg.prompt_once, client, cfg.model, profile=cfg.profile,
-                         do_copy=cfg.copy, do_exec=cfg.exec_)
+                         always_copy=args.Always_copy, do_exec=cfg.exec_)
         raise SystemExit(rc)
 
-    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, always_copy=args.Always_copy, profile=cfg.profile)
+    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, always_copy=args.Always_copy, profile=cfg.profile, cfg=cfg)
 
 if __name__ == "__main__":
     main()

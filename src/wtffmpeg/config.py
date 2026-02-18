@@ -64,21 +64,22 @@ def resolve_config(args) -> AppConfig:
     profile_dir = args.profile_dir or DEFAULT_PROFILE_DIR
     profile = load_profile(profile_spec, profile_dir)
 
-
     # auth/url
     openai_api_key = args.api_key or _env_nonempty("WTFFMPEG_OPENAI_API_KEY")
     bearer_token = args.bearer_token or _env_nonempty("WTFFMPEG_BEARER_TOKEN")
     url_raw = args.url or _env_nonempty("WTFFMPEG_LLM_API_URL") or "http://localhost:11434"
 
-    # provider selection
-    if openai_api_key:
-        provider: Provider = "openai"
-        base_url = normalize_base_url(url_raw)
-        model = args.model or _env_nonempty("WTFFMPEG_MODEL") or DEFAULT_MODEL_OPENAI
+    if args.url:
+        provider = "compat"
+        base_url = normalize_base_url(args.url)
+    elif openai_api_key:
+        provider = "openai"
+        base_url = None
     else:
-        provider : Provider = "compat"
-        base_url = normalize_base_url(url_raw)
-        model = args.model or _env_nonempty("WTFFMPEG_MODEL") or DEFAULT_MODEL_COMPAT
+        provider = "compat"
+        base_url = normalize_base_url(url_raw or "http://localhost:11434")
+
+    model = args.model or _env_nonempty("WTFFMPEG_MODEL") or DEFAULT_MODEL_OPENAI
 
     return AppConfig(
         model=model,
