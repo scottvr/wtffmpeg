@@ -2,6 +2,8 @@ import sys
 import subprocess
 import pyperclip
 from wtffmpeg.llm import OpenAI, generate_ffmpeg_command
+from wtffmpeg.profiles import Profile
+from wtffmpeg.config import AppConfig, resolve_config
 
 from pathlib import Path
 HISTFILE = Path("~/.wtff_history").expanduser()

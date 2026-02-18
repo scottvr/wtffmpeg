@@ -1,8 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
-from pathlib import Path
-
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Literal
 import os
@@ -55,7 +51,8 @@ def normalize_base_url(url: str) -> str:
 
 DEFAULT_MODEL_COMPAT = "gpt-oss:20b"
 DEFAULT_MODEL_OPENAI = "gpt-4o"
-DEFAULT_PROFILE_NAME = "minimal"  
+DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
+DEFAULT_PROFILE_NAME = "minimal"
 
 def resolve_config(args) -> AppConfig:
     # profile

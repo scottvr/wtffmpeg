@@ -7,11 +7,7 @@ from typing import Literal, Optional
 import os
 import sys
 
-try:
-    from importlib import resources as importlib_resources
-except Exception:  # pragma: no cover
-    import importlib_resources  # type: ignore
-
+from .config import AppConfig
 @dataclass(frozen=True)
 class LLMTarget:
     client: OpenAI
@@ -64,16 +60,6 @@ def generate_ffmpeg_command(messages: list[dict], client: OpenAI, model: str) ->
         print(f"Error during model inference: {e}", file=sys.stderr)
         return "", ""
 
-def normalize_base_url(url: str) -> str:
-    url = url.strip()
-    if not url.startswith(("http://", "https://")):
-        url = "http://" + url
-    url = url.rstrip("/")
-    if not url.endswith("/v1"):
-        url += "/v1"
-    return url
-
-from openai import OpenAI
 
 def build_client(cfg: AppConfig) -> OpenAI:
     if cfg.provider == "openai":
