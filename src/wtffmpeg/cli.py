@@ -98,8 +98,12 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
+    cfg = resolve_config(args)
+    print(f"Profile: {cfg.profile.name}")
+
+    
     if args.list_profiles:
-        avail = list_profiles(getattr(args, "profile_dir", None))
+        avail = list_profiles(cfg.profile_dir)
         print("User profiles:")
         for n in avail["user"]:
             print(f"  {n}")
@@ -108,10 +112,6 @@ def main():
             print(f"  {n}")
         raise SystemExit(0)
     
-    cfg = resolve_config(args)
-    
-    print(f"Profile: {cfg.profile.name}")
-
     client  = build_client(cfg)
 
     if cfg.prompt_once is not None:

@@ -1,13 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional
-from pathlib import Path
-
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Literal
 import os
 
-from .profiles import load_profile, Profile
+from .profiles import load_profile, Profile, DEFAULT_PROFILE_DIR
 
 Provider = Literal["openai", "compat"]
 
@@ -24,6 +20,7 @@ class AppConfig:
 
     # prompts
     profile: Profile
+    profile_dir: Path
 
     # repl/flow
     context_turns: int
@@ -64,7 +61,9 @@ def resolve_config(args) -> AppConfig:
         or _env_nonempty("WTFFMPEG_PROFILE")
         or DEFAULT_PROFILE_NAME
     )
-    profile = load_profile(profile_spec, args.profile_dir)
+    profile_dir = args.profile_dir or DEFAULT_PROFILE_DIR
+    profile = load_profile(profile_spec, profile_dir)
+
 
     # auth/url
     openai_api_key = args.api_key or _env_nonempty("WTFFMPEG_OPENAI_API_KEY")
@@ -87,10 +86,11 @@ def resolve_config(args) -> AppConfig:
         base_url=base_url,
         openai_api_key=openai_api_key,
         bearer_token=bearer_token,
-        profile=profile,
         context_turns=args.context_turns,
         preload_prompt=args.prompt,
         prompt_once=args.prompt_once,
         copy=args.copy,
         exec_=args.exec_,
+        profile=profile,
+        profile_dir=profile_dir,
     )
