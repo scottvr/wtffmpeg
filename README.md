@@ -1,4 +1,4 @@
-Update! I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here it is in action! I have moved much of the [excessive rambling to here](https://medium.com/@scott.vr/some-months-back-i-released-a-silly-tool-as-a-poc-console-repl-interface-to-a-local-llm-that-56ed5f7284ec?postPublishedType=repub), should you want some.
+Update! I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here is **wtffmpeg** in action! I have moved much of the [excessive rambling to here](https://medium.com/@scott.vr/some-months-back-i-released-a-silly-tool-as-a-poc-console-repl-interface-to-a-local-llm-that-56ed5f7284ec?postPublishedType=repub), should you want some.
 
 https://github.com/user-attachments/assets/75222305-efe3-4581-9172-b6d76ad37eba
 
