@@ -67,6 +67,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Copy generated command to clipboard (single-shot only).",
     )
 
+    p.add_argument(
+        "-A", "--Always-copy",
+        action="store_true",
+        help="Always copy generated command to clipboard without confirmation.",
+    )
+
+#    p.add_argument(
+#        "-l", "--log-prompts",
+#        action="store_true",
+#        help="Log prompts to history file for better autosuggest. Uses ~/.wtff_history.",
+#    )
     # Keep -i as NOP to avoid breaking old aliases
     p.add_argument(
         "-i", "--interactive",
@@ -98,8 +109,10 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
+    cfg = resolve_config(args)
+    
     if args.list_profiles:
-        avail = list_profiles(getattr(args, "profile_dir", None))
+        avail = list_profiles(cfg.profile_dir)
         print("User profiles:")
         for n in avail["user"]:
             print(f"  {n}")
@@ -108,19 +121,14 @@ def main():
             print(f"  {n}")
         raise SystemExit(0)
     
-    cfg = resolve_config(args)
-    
-    print(f"Profile: {cfg.profile.name}")
-
     client  = build_client(cfg)
 
     if cfg.prompt_once is not None:
         rc = single_shot(cfg.prompt_once, client, cfg.model, profile=cfg.profile,
-                         do_copy=cfg.copy, do_exec=cfg.exec_)
+                         always_copy=args.Always_copy, do_exec=cfg.exec_)
         raise SystemExit(rc)
 
-    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, profile=cfg.profile)
-    raise SystemExit(0)
+    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, always_copy=args.Always_copy, profile=cfg.profile, cfg=cfg)
 
 if __name__ == "__main__":
     main()
