@@ -79,6 +79,7 @@ def resolve_config(args) -> AppConfig:
         provider = "compat"
         base_url = normalize_base_url(url_raw or "http://localhost:11434")
 
+
     model = args.model or _env_nonempty("WTFFMPEG_MODEL") or DEFAULT_MODEL_OPENAI
 
     return AppConfig(
