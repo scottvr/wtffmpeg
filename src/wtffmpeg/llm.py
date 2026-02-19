@@ -2,10 +2,9 @@ from __future__ import annotations
 from openai import OpenAI
 from typing import Tuple
 from pathlib import Path
-from dataclasses import dataclass
-from typing import Literal, Optional
 import sys
 
+from .config import AppConfig, resolve_config
 
 def verify_connection(client: OpenAI, base_url: str | None) -> None:
     """
