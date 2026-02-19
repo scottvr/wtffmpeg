@@ -1,13 +1,18 @@
-![wtffmpeg](https://scottvr.github.io/images/wtff.png)
+## WTFfmpeg
 
-## TL;DR: Nearly-breaking changes to some command-line options. 
-- *A snapshot of v0.1.0 was tagged as 'alpha' from the main branch, if you really want the old hacky behavior* 
+Update! I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here it is in action!
 
-- If you previously used `wtff "some prompt"`: that still works, but now it **preloads context and then drops you into the REPL** instead of exiting immediately. If you truly want a single-shot, non-interactive invocation, there is a flag for that (see below).
+https://github.com/user-attachments/assets/75222305-efe3-4581-9172-b6d76ad37eba
+
+
+I recorded a video of installing the package, and performing a few commands within `wtffmpeg` to demonstrate why it's gone from "silly thing that got polarized reactions" (and AI-narrated videos made by scam content farmers on YouTube, as well as some thoughtful reactions from people spinning off other useful endeavors featuring wtffmpeg as inspiration and giving it shoutouts!) to actually useful - and now **useable** - tool. (See what I meant about  my tendency to ramble? Sorry.)
 
 ---
 
 ## WTF is this? `ffmpeg`?
+
+
+![wtffmpeg logo chopped and screwed to look like wtffmpeg?](https://scottvr.github.io/images/wtff.png?234)
 
 `wtffmpeg` is a command-line tool that uses a Large Language Model (LLM) to translate plain-English descriptions of video or audio tasks into **actual, executable `ffmpeg` commands**.
 
@@ -21,7 +26,7 @@ It is intended to eliminate a common workflow where you:
 
 Instead, `wtffmpeg` lets you say what you want, review the generated command, optionally edit it, and then decide whether to run it.
 
-The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
+The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history in the LLM's context (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
 ```
 wtffmpeg> ok now just like that,
 but have it create chapters in the
@@ -29,7 +34,7 @@ video container, using points when
 audio is below some threshold for
 more than 100 milliseconds"
 ```
-and to have the LLM know what "just like that" means, because it knows what command you are referring to, is quite powerful. 
+and to have the LLM know what "just like that" means, because it knows what command you are referring to, is quite powerful. As is the ability to navigate your command (and prompt) history as you would in your normal shell cli shouldn't be understated.
 
 The truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them interspersed throughout bash logic, there are very few things I get right every tiime. 
 
@@ -41,7 +46,7 @@ Prior to **wtffmpeg**, it was typical for me to spend a lot of time learning how
 
 So, if I am honest, I will admit that *every* `ffmpeg` session that accomplishes anything useful or meaningful is already an exercise in up-arrow, command-history editing, and evolving incremental command-line mutations until finally one adaptation naturally selects to reproduce and pass on hard-won progress to the next generation of command.  Or something like it anyway.  
 
-So... if I acknowledge that as the truth, then using a **etffmpeg** as a REPL for `ffmpeg` that is actually very often *at least as correct* the first time as I would have been  going it alone - and with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over and...
+So... if I acknowledge that as the truth, then using a **wtffmpeg** as a REPL for `ffmpeg` that is actually very often *at least as correct* the first time as I would have been  going it alone - and with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over and...
 
 Let's be intellectually  honest: the LLMs are at least *close to correct* about as often as I am. `ffmpeg` usage, for me, is already very non-deterministic. 
 ffmpeg is just enormously powerful, and its list of capabilities and ways to affect their outcome is immense.
@@ -85,7 +90,7 @@ I initially shipped `wtffmpeg` as a tiny REPL app with a huge system prompt that
 
 By default it used Phi (locally)  and then slowly and inadvertantly through trial and error, I  arrived at system prompt as a necessary artifact of model capability constraints, and that served essentially as *finetuning by transcript*. Because doing so was simultaneously ludicrous and actually undeniably useful, I disclaimed `wtffmpeg` as "performance art".
 
-As wtffmpeg continues to improve as it is in active development, that big ol' cheat sheet of a system prompt could actually be a hindrance when using a SoTA model. This is why it is being retired to a profile labeled "cheatsheet' in the next release, along with a handful of other profiles enabled by the new `--profile <list>`, where <list> is a plain-text file pointed to by an avsolute path, or a "profile name" if you want to use a profile from youe wtffmpeg profile directory. Anyway, some (even the v0.1.0 Phi-tailored joke) are shipped in the repo, but in the end it's just text, so you are free to use whatever you choose.
+As wtffmpeg continues to improve as it is in active development, that big ol' cheat sheet of a system prompt could actually be a hindrance when using a SoTA model. This is why it is being retired to a profile labeled "cheatsheet' in the next release, along with a handful of other profiles enabled by the new `--profile <list>`, where <list> is a plain-text file pointed to by an avsolute path, or a "profile name" if you want to use a profile from your wtffmpeg profile directory. Anyway, some (even the v0.1.0 Phi-tailored joke) are shipped in the repo, but in the end it's just text, so you are free to use whatever you choose.
 
 
 ## Usage/Examples
@@ -99,9 +104,12 @@ ffmpeg -i test_pattern.mp4 -vf "fps=10,scale=320:-1:flags=lanczos" output.gif
 Execute? [y/N], (c)opy to clipboard:
 ```
 
-If you say y, it runs.
+***If you say y, it runs.
 If you say c, it copies.
-If you say anything else, nothing happens. You stay in the REPL. 
+If you say anything else, nothing happens. You stay in the REPL.***
+
+**The above is not accurate anymore; I have streamlined the "execute or don't" UX to one much more amenable to the normal cli user**
+See video at top for a glimpse of how it works now. I'll update all of these examples soon, but wanted to make a note for now.
 
 Running
 ```
