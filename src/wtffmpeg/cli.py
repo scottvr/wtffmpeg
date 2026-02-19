@@ -55,12 +55,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Base URL for OpenAI-compatible API. Defaults WTFFMPEG_LLM_API_URL then http://localhost:11434",
     )
 
-    p.add_argument(
-        "-x", "-e", "--exec",
-        dest="exec_",
-        action="store_true",
-        help="Execute generated command without confirmation (single-shot only).",
-    )
+#    p.add_argument(
+#        "-x", "-e", "--exec",
+#        dest="exec_",
+#        action="store_true",
+#        help="Execute generated command without confirmation (single-shot only).",
+#    )
     p.add_argument(
         "-c", "--copy",
         action="store_true",
@@ -125,7 +125,7 @@ def main():
 
     if cfg.prompt_once is not None:
         rc = single_shot(cfg.prompt_once, client, cfg.model, profile=cfg.profile,
-                         always_copy=args.Always_copy, do_exec=cfg.exec_)
+                         copy=args.copy)
         raise SystemExit(rc)
 
     repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, always_copy=args.Always_copy, profile=cfg.profile, cfg=cfg)

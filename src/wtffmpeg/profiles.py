@@ -4,7 +4,7 @@ from typing import Optional, Literal
 import os
 
 import importlib.resources  # type: ignore
-from .config import DEFAULT_PROFILE_DIR
+DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
 
 @dataclass(frozen=True)
 class Profile():

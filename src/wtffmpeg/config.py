@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional, Literal
 import os
 
-from .profiles import load_profile, Profile
+from .profiles import load_profile, Profile, DEFAULT_PROFILE_DIR
 
 Provider = Literal["openai", "compat"]
 
@@ -29,7 +29,7 @@ class AppConfig:
 
     # actions
     copy: bool
-    exec_: bool
+#    exec_: bool
 
 
 def _env_nonempty(name: str) -> Optional[str]:
@@ -52,7 +52,6 @@ def normalize_base_url(url: str) -> str:
 
 DEFAULT_MODEL_COMPAT = "gpt-oss:20b"
 DEFAULT_MODEL_OPENAI = "gpt-4o"
-DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
 DEFAULT_PROFILE_NAME = "minimal" 
 
 def resolve_config(args) -> AppConfig:
@@ -93,7 +92,7 @@ def resolve_config(args) -> AppConfig:
         preload_prompt=args.prompt,
         prompt_once=args.prompt_once,
         copy=args.copy,
-        exec_=args.exec_,
+#        exec_=args.exec_,
         profile=profile,
         profile_dir=profile_dir,
     )

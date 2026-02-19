@@ -281,7 +281,7 @@ def print_command(cmd: str):
           " or edit it as needed. You can also copy/paste it elsewhere.",
           " To run shell commands directly, prefix with ! (e.g. !ls -la).")
 
-def single_shot(prompt: str, client: OpenAI, model: str, *, always_copy: bool,  profile: Profile) -> int:
+def single_shot(prompt: str, client: OpenAI, model: str,  copy: bool,  profile: Profile) -> int:
     messages = [
         {"role": "system", "content": profile.text},
         {"role": "user", "content": prompt},
@@ -292,14 +292,13 @@ def single_shot(prompt: str, client: OpenAI, model: str, *, always_copy: bool,  
         print("Failed to generate a command.", file=sys.stderr)
         return 1
 
-    print_command(cmd)
+    print(cmd)
 
-    if cmd and always_copy:
+    if cmd and copy:
         pyperclip.copy(cmd)
         print("Command copied to clipboard.")
 
-        print("\nExecution cancelled by user.")
-        return 0
+    return 0
 
 
 
@@ -324,7 +323,6 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
     messages = [{"role": "system", "content": profile.text}]
 
     if preload:
-        print("LOADED!!!!")
         messages.append({"role": "user", "content": preload})    # preload is "safe landing": run once, then drop into repl
 
         messages = trim_messages(messages, keep_last_turns=keep_last_turns)
@@ -334,11 +332,14 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
         if cmd:
             messages.append({"role": "assistant", "content": raw})
             messages = trim_messages(messages, keep_last_turns=keep_last_turns)
-            cmd or print_command(raw)
 
     print("Entering interactive mode. Type 'exit'/'quit'/'logout' to leave. Use !<cmd> to run shell commands.")
 
+    prefilled = True if preload else False
     while True:
+        if prefilled:
+            prefill = "!" + " ".join(cmd.splitlines()).strip() if cmd else ""
+            prefilled = False
         try:
             line = session.prompt("wtff> ", 
                 default=str(prefill) if 'prefill' in locals() else "", 
@@ -432,7 +433,7 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
             messages.append({"role": "assistant", "content": raw})
             messages = trim_messages(messages, keep_last_turns=keep_last_turns)
 
-            print_command(cmd or raw)
+            print(cmd or raw)
 
             if cmd:
                 prefill = "!" + " ".join(cmd.splitlines()).strip()
