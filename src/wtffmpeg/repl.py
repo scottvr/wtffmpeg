@@ -15,6 +15,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.application import get_app
 
 from .llm import generate_ffmpeg_command, verify_connection
 from .config import AppConfig
@@ -48,7 +49,7 @@ CONFIG_KEYS = {
     "bearer_token",
     "context_turns",
     "profile",
-    "always_copy",
+    "copy",
 }
 
 PERSIST_KEYS = {
@@ -57,7 +58,7 @@ PERSIST_KEYS = {
     "base_url",
     "context_turns",
     "profile",
-    "always_copy",
+    "copy",
 }
 
 def _parse_kv(tokens: list[str]) -> dict[str, str]:
@@ -75,7 +76,7 @@ def _coerce_value(key: str, raw: str):
         return None
     if key in ("context_turns",):
         return int(v)
-    if key in ("always_copy",):
+    if key in ("copy",):
         if v.lower() in ("1", "true", "yes", "on"):
             return True
         if v.lower() in ("0", "false", "no", "off"):
@@ -92,7 +93,7 @@ def _sanitize_cfg(cfg: AppConfig) -> dict:
         "bearer_token": ("(set)" if cfg.bearer_token else "(unset)"),
         "context_turns": cfg.context_turns,
         "profile": cfg.profile.name,
-        "always_copy": cfg.copy,  # or wherever you store it
+        "copy": cfg.copy,  # or wherever you store it
     }
 
 
@@ -176,7 +177,7 @@ CONFIGURABLE KEYS
   profile
       Active profile name.
 
-  always_copy
+  copy
       If true, copy generated ffmpeg command to clipboard automatically.
 
 
@@ -196,7 +197,7 @@ PERSISTENCE
       base_url
       context_turns
       profile
-      always_copy
+      copy
 
   API keys and bearer tokens are NOT written unless explicitly supported
   by future options.
@@ -236,9 +237,8 @@ NOTES
             prof = load_profile(str(updates["profile"]), cfg.profile_dir)
             updates["profile"] = prof
 
-        # map always_copy -> cfg.copy maybe, depending on semantics
-        if "always_copy" in updates:
-            updates["copy"] = updates.pop("always_copy")
+        if "copy" in updates:
+            updates["copy"] = updates.pop("copy")
 
         new_cfg = replace(cfg, **updates)
 
@@ -302,11 +302,22 @@ def single_shot(prompt: str, client: OpenAI, model: str,  copy: bool,  profile: 
 
 
 
-def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, profile: Profile, always_copy: bool = False, cfg : AppConfig | None  = None):
+def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, profile: Profile, copy: bool = False, cfg : AppConfig | None  = None):
     def get_toolbar():
+#        try:
+#            width = get_app().output.get_size().columns
+#        except Exception:
+#            width = 80
+        width = get_app().output.get_size().columns
+
         # Detect the current mode from the session state
-        mode_name = "Vi" if session.editing_mode == EditingMode.VI else "Emacs"
-        return HTML(f'<b>[Mode: {mode_name}]</b> Type /help for commands')
+        bind_txt = "Vi" if session.editing_mode == EditingMode.VI else "Emacs"
+        copy_mode = "ON" if copy else "OFF"
+        copy_txt = f"Copy: {copy_mode}"
+        padding = width - len(bind_txt) - len(copy_txt) - 12  
+        if padding < 1:
+            padding = 1
+        return HTML(f'<b>[Mode: {bind_txt}]</b> {" " * padding} <b>{copy_txt}</b>')
     
     def _client_base_url(client) -> str | None:
         for attr in ("base_url", "_base_url"):
@@ -332,6 +343,7 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
         if cmd:
             messages.append({"role": "assistant", "content": raw})
             messages = trim_messages(messages, keep_last_turns=keep_last_turns)
+            pyperclip.copy(cmd)
 
     print("Entering interactive mode. Type 'exit'/'quit'/'logout' to leave. Use !<cmd> to run shell commands.")
 
@@ -433,8 +445,8 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
             messages.append({"role": "assistant", "content": raw})
             messages = trim_messages(messages, keep_last_turns=keep_last_turns)
 
-            print(cmd or raw)
-
+            if copy:
+                pyperclip.copy(cmd)
             if cmd:
                 prefill = "!" + " ".join(cmd.splitlines()).strip()
 

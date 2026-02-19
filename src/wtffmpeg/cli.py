@@ -64,13 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "-c", "--copy",
         action="store_true",
-        help="Copy generated command to clipboard (single-shot only).",
-    )
-
-    p.add_argument(
-        "-A", "--Always-copy",
-        action="store_true",
-        help="Always copy generated command to clipboard without confirmation.",
+        help="Copy generated command to clipboard automatically.",
     )
 
 #    p.add_argument(
@@ -128,7 +122,7 @@ def main():
                          copy=args.copy)
         raise SystemExit(rc)
 
-    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, always_copy=args.Always_copy, profile=cfg.profile, cfg=cfg)
+    repl(cfg.preload_prompt, client, cfg.model, cfg.context_turns, copy=args.copy, profile=cfg.profile, cfg=cfg)
 
 if __name__ == "__main__":
     main()
