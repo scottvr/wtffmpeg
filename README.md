@@ -16,17 +16,22 @@ I recorded a video of installing the package, and performing a few commands with
 
 `wtffmpeg` is a command-line tool that uses a Large Language Model (LLM) to translate plain-English descriptions of video or audio tasks into **actual, executable `ffmpeg` commands**.
 
-It is intended to eliminate a common workflow where you:
+It is intended to eliminate a common workflow where you know that ffmpeg is the right tool or a job, so you:
 
 1. Search Stack Overflow
 2. Read a 1000-word explanation
 3. Copy/paste/typo, possibly misunderstand one or more conflicting amswers
 5. Read help/usage because the Internet strangers only got you very close to what you want to do.
-6. Repeat. (And repeat the entire workflow the next time you need to do something new.)
+6. Repeat.
 
-Instead, `wtffmpeg` lets you say what you want, review the generated command, optionally edit it, and then decide whether to run it.
+And repeat that workflow each and every time the occasion arises where ffmpeg comes to mind as the right tool for the job. (because it likely is the right tool for the job.)
 
-The command is the point. The REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history in the LLM's context (one-sided as it may be, since wtffmpeg does not by default display anything beyond the suggested `ffmpeg` command) **should not be underestimated**; being able to do something like 
+To help with that,  `wtffmpeg` is designed to help you get what you want by saying what you want. It is not a "GUI for ffmpeg". It is still a console tool like your shell, and ffmpeg is still executed idempotently - stateless and atomic in its execution, isolated from all previous invocations. ffmpeg is a _pure function_. `wtffmpeg` is the stochastic shell, that also happens to be pretty savant-like in its auto-completion and competent in its interpretataion of *DWIM*. Like the mighty ffmpeg, `wtffmpeg` is still a CLI;  
+the command is the point. 
+
+Its REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history in the LLM's context  **should not be underestimated**.
+
+Being able to do something like 
 ```
 wtffmpeg> ok now just like that,
 but have it create chapters in the
