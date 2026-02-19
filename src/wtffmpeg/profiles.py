@@ -4,6 +4,7 @@ from typing import Optional, Literal
 import os
 
 import importlib.resources  # type: ignore
+from .config import DEFAULT_PROFILE_DIR
 
 @dataclass(frozen=True)
 class Profile():
@@ -11,8 +12,6 @@ class Profile():
     source: Literal["user", "builtin", "path"]
     path: Optional[Path]
     text: str
-
-DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
 
 def _looks_like_path(spec: str) -> bool:
     if spec.startswith(("~", ".", os.sep)):
