@@ -90,7 +90,7 @@ I initially shipped `wtffmpeg` as a tiny REPL app with a huge system prompt that
 
 By default it used Phi (locally)  and then slowly and inadvertantly through trial and error, I  arrived at system prompt as a necessary artifact of model capability constraints, and that served essentially as *finetuning by transcript*. Because doing so was simultaneously ludicrous and actually undeniably useful, I disclaimed `wtffmpeg` as "performance art".
 
-As wtffmpeg continues to improve as it is in active development, that big ol' cheat sheet of a system prompt could actually be a hindrance when using a SoTA model. This is why it is being retired to a profile labeled "cheatsheet' in the next release, along with a handful of other profiles enabled by the new `--profile <list>`, where <list> is a plain-text file pointed to by an avsolute path, or a "profile name" if you want to use a profile from youe wtffmpeg profile directory. Anyway, some (even the v0.1.0 Phi-tailored joke) are shipped in the repo, but in the end it's just text, so you are free to use whatever you choose.
+As wtffmpeg continues to improve as it is in active development, that big ol' cheat sheet of a system prompt could actually be a hindrance when using a SoTA model. This is why it is being retired to a profile labeled "cheatsheet' in the next release, along with a handful of other profiles enabled by the new `--profile <list>`, where <list> is a plain-text file pointed to by an avsolute path, or a "profile name" if you want to use a profile from your wtffmpeg profile directory. Anyway, some (even the v0.1.0 Phi-tailored joke) are shipped in the repo, but in the end it's just text, so you are free to use whatever you choose.
 
 
 ## Usage/Examples
