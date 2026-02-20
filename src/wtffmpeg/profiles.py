@@ -1,6 +1,7 @@
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional, Literal
+from functools import lru_cache
 import os
 
 import importlib.resources  # type: ignore
@@ -115,3 +116,12 @@ def load_profile(profile_spec: str, profile_dir: Path | None = None) -> Profile:
         f"User profiles in {pd}: {', '.join(avail['user']) or '(none)'}; "
         f"Built-ins: {', '.join(avail['builtin']) or '(none)'}."
     )
+
+def resolve_profile(cfg: AppConfig) -> Profile:
+    """Return the Profile for cfg.profile_name (cached)."""
+    return _cached_profile(str(cfg.profile_dir), cfg.profile_name)
+
+# Profile resolution (name -> Profile)
+@lru_cache(maxsize=64)
+def _cached_profile(profile_dir_str: str, profile_name: str) -> Profile:
+    return load_profile(profile_name, Path(profile_dir_str))
