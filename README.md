@@ -19,6 +19,7 @@ It is intended to eliminate a common workflow where you know that ffmpeg is the 
 
 And repeat that workflow each and every time the occasion arises where ffmpeg comes to mind as the right tool for the job. (because it likely is the right tool for the job.)
 
+----
 To help with that,  `wtffmpeg` is designed to help you get what you want by saying what you want. It is not a "GUI for ffmpeg". It is still a console tool like your shell, and ffmpeg is still executed idempotently - stateless and atomic in its execution, isolated from all previous invocations. ffmpeg is a _pure function_. `wtffmpeg` is the stochastic shell, that also happens to be pretty savant-like in its auto-completion and competent in its interpretataion of *DWIM*. Like the mighty ffmpeg, `wtffmpeg` is still a CLI;  
 the command is the point. 
 
@@ -36,38 +37,59 @@ and to have the LLM know what "just like that" means, because it knows what comm
 
 The truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them interspersed throughout bash logic, there are very few things I get right every tiime. 
 
-## some more dead-horsing about the UI and defending the LLM use case
+## On the WTFF UI and the LLM use case
 
 Often, complex `ffmpeg` usage is  very much a process of running many different *almost right* commands, and altering the input options and varying flags until arriving at one or more commands that will no doubt be preserved in text documents or shell scripts for the user to refer to later so that what is learned can be recalled, leading to long-term progress toward `ffmpeg` mastery. 
 
-Prior to **wtffmpeg**, it was typical for me to spend a lot of time learning how (and *how not*) to accomplish some specific task with ffmpeg, and then *never* need to do that exact thing again, so..?
+Prior to **wtffmpeg**, it was typical for me to spend a lot of time learning how (and *how not*) to accomplish some specific task with ffmpeg, and then *never* need to do that exact thing again, _so..?_
 
-So, if I am honest, I will admit that *every* `ffmpeg` session that accomplishes anything useful or meaningful is already an exercise in up-arrow, command-history editing, and evolving incremental command-line mutations until finally one adaptation naturally selects to reproduce and pass on hard-won progress to the next generation of command.  Or something like it anyway.  
+_So_, if I am honest, I will admit that *every* `ffmpeg` session that accomplishes anything useful or meaningful is already an exercise in up-arrow, command-history editing, and evolving incremental command-line mutations until finally one adaptation naturally selects to reproduce and pass on hard-won progress to the next generation of command.  Or something like it anyway.  
 
-So... if I acknowledge that as the truth, then using a **wtffmpeg** as a REPL for `ffmpeg` that is actually very often *at least as correct* the first time as I would have been  going it alone - and with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over and...
+_So_... **if** I acknowledge that as the truth, then using **wtffmpeg** as a REPL for `ffmpeg`, **and** it very often being *at least as correct* on the first show as I would have been  had I gone it alone... **and** with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over with, _and_...
 
-Let's be intellectually  honest: the LLMs are at least *close to correct* about as often as I am. `ffmpeg` usage, for me, is already very non-deterministic. 
-ffmpeg is just enormously powerful, and its list of capabilities and ways to affect their outcome is immense.
+### Let's be intellectually  honest here: 
+- LLMs today are every bit as *close to correct* as most users on the first shot.
+- I'd wager that they are *better* than most users, very nearly *most of the time* in fact.
+- "normal" `ffmpeg` _usage_ already results in stochastic success
+- The `ffmpeg` tool is perfectly deterministic
+- In terms of the user's outcome, what difference does that actually make?
+- `ffmpeg` is just enormously powerful, and its list of capabilities and ways to influence their outcome is immense.
+- **wtffmpeg** is an auxillary tool for *using* `ffmpeg`. 
+- **whether you disapprove of it on moral grounds or not**, 
+- and you can be offended by it on intellectual grounds if you care to be, 
+- the fact is that 
+- **"ffmpeg cli configurator and experimental command lab assistant"**
+- is a perfect use case for LLMs.
 
-**wtffmpeg** is an auxillary tool for *using* ffmpeg. The ability of your command history and your knowledge to couple directly in a command-line interface, while the model's responses are shaped and improved throughout your experimentation session of discoveries actually makes this silly thing that I initially made as a joke into something I now have an obligation to improve and maintain because,..
 
-**whether you disapprove of  it on moral grounds or not**, and you can be offended by it on intellectual grounds if you care to be, the fact is that **"ffmpeg cli configurator and experimental command lab assistant"** is a perfect use case for LLMs.
 
-## CLI optional arguments
+# Usage
 ```
-usage: wtff [options] [prompt]
+Translate natural language to an ffmpeg command.
 
---model MODEL           Model to use
---api-key KEY           OpenAI API key
---bearer-token TOKEN    Bearer token for compatible APIs
---url URL               Base API URL (OpenAI-compatible)
---prompt-once           Single-shot, non-interactive mode
---context-turns N       Number of turns of context to retain
--x, -e, --exec          Execute without confirmation
--c, --copy              Copy command to clipboard
+positional arguments:
+  prompt                (Optional) preload prompt. Runs once, then drops you into the REPL.
+
+options:
+  -h, --help            show this help message and exit
+  -p, --prompt-once PROMPT
+                        Single-shot mode: generate for PROMPT once, then exit (use -c/-x to copy/exec).
+  --model MODEL         Model to use. Defaults WTFFMPEG_MODEL then 'gpt-oss:20b'.
+  --api-key API_KEY     OpenAI API key. Defaults WTFFMPEG_OPENAI_API_KEY (or none).
+  --bearer-token BEARER_TOKEN
+                        Bearer token. Defaults WTFFMPEG_BEARER_TOKEN.
+  --url URL             Base URL for OpenAI-compatible API. Defaults WTFFMPEG_LLM_API_URL then http://localhost:11434
+  -x, -e, --exec        Execute generated command without confirmation (single-shot only).
+  -c, --copy            Copy every generated command to your system clipboard.
+  -i, --interactive     (Deprecated) no-op. REPL is now the default.
+  --context-turns CONTEXT_TURNS
+                        How many prior user/assistant turns to include in REPL requests (0 = stateless).
+  --profile PROFILE     Profile name or path
+  --list-profiles       List available profiles and exit
+  --profile-dir PROFILE_DIR
+                        Override ~/.wtffmpeg/profiles
 ```
 
-There's stil a few to document and a few others I haven't gotten around to implementing yet.
 
 The old `-i` flag is accepted but ignored. Interactive is the default now.
 
@@ -185,8 +207,133 @@ Defaults to ollama at http://localhost:11434 (command-line equivalent is --url)
 - WTFFMPEG_PROFILE:  system prompt profile to use. (Defaults to `minimal`) cli is `--profile`
 - WTFFMPEG_PROFILE_DIR: Alternate directory for your system prompt profiles. (--profile-home)
 
-### Add something about /slash ops
-Later.
+### /slash commands
+```
+Available /commands:
+  /help, /h, /? - Show this help message
+  /ping - Check LLM connectivity
+  /reset - Clear conversation history (keep system prompt)
+  /profile - Show current profile info
+  /profiles - List available profiles
+  /config - View and modify configuration (type /config help for details)
+  /bindings - List special keybindings (e.g. for Vi/Emacs modes)
+  /q|quit|/exit|/logout - Exit the REPL
+- Use !<command> to execute shell commands
+- Just type in natural language to generate ffmpeg commands.
+- See the README in github.com/scottvr/wtffmpeg.
+```
+
+The `/config` command has its own additional help as well:
+
+```
+  /config — inspect and modify runtime configuration
+ 
+USAGE
+ 
+  /config
+  /config show
+      Show current effective configuration (secrets are masked).
+ 
+  /config keys
+      List configurable keys.
+ 
+  /config get <key> [<key> ...]
+      Show the current value of one or more keys.
+ 
+  /config set key=value [key=value ...]
+      Set one or more configuration values for the current session.
+ 
+  /config unset <key> [<key> ...]
+      Clear one or more configuration values (sets to None).
+ 
+  /config reset
+      Reset configuration back to startup defaults.
+ 
+  /config save [path]
+      Save current persistent configuration to file.
+      Default path: ~/.wtffmpeg/config.env
+ 
+  /config load [path]
+      Load configuration from file and apply it.
+      Default path: ~/.wtffmpeg/config.env
+ 
+ 
+COMMON SHORTCUTS
+ 
+  /model <name>
+      Equivalent to: /config set model=<name>
+ 
+  /provider <name>
+      Equivalent to: /config set provider=<name>
+ 
+  /url <base_url>
+      Equivalent to: /config set base_url=<base_url>
+  
+  /profile <name>
+      Equivalent to: /config set profile=<name>
+ 
+ 
+CONFIGURABLE KEYS
+ 
+  model
+      Model name used for requests.
+ 
+  provider
+      LLM provider (e.g. openai, compat).
+ 
+  base_url
+      OpenAI-compatible endpoint base URL.
+ 
+  openai_api_key
+      API key for OpenAI provider.
+      WARNING: Not displayed in plaintext.
+ 
+  bearer_token
+      Bearer token for compat provider.
+      WARNING: Not displayed in plaintext.
+ 
+  context_turns
+      Number of previous turns retained in context window.
+ 
+  profile
+      Active profile name.
+ 
+  copy
+      If true, copy generated ffmpeg command to clipboard automatically.
+ 
+ 
+VALUE RULES
+ 
+  key=value format is required.
+  Strings may be quoted.
+  Booleans accept: true/false, 1/0, yes/no.
+  None values: none or null.
+ 
+ 
+PERSISTENCE
+ 
+  Only non-secret keys are saved by default:
+      model
+      provider
+      base_url
+      context_turns
+      profile
+      copy
+ 
+  API keys and bearer tokens are NOT written unless explicitly supported
+  by future options.
+ 
+  Saved format is a simple key=value file.
+ 
+ 
+NOTES
+ 
+  Changing provider, base_url, or authentication will rebuild the client.
+  Changes take effect immediately for subsequent requests.
+  Configuration changes apply only to the current session unless saved.
+ 
+```
+
 
 # Disclaimer
 `wtffmpeg` started as something I built to amuse myself. It accidentally turned out to be useful.
