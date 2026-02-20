@@ -5,7 +5,8 @@ from functools import lru_cache
 import os
 
 import importlib.resources  # type: ignore
-DEFAULT_PROFILE_DIR = Path.home() / ".wtffmpeg" / "profiles"
+from .config import AppConfig, DEFAULT_PROFILE_DIR
+
 
 @dataclass(frozen=True)
 class Profile():
