@@ -49,6 +49,7 @@ CONFIG_KEYS = {
     "bearer_token",
     "context_turns",
     "profile",
+    "no_nag",
     "copy",
 }
 
@@ -99,7 +100,7 @@ def _sanitize_cfg(cfg: AppConfig) -> dict:
 
 
 def handle_config_command(cmdline: str, session: PromptSession, cfg: AppConfig, client) -> tuple[AppConfig, object]:
-
+    handled = True
     # cmdline is the full line starting with "/config ..."
     parts = shlex.split(cmdline)
     # parts[0] == "/config"
@@ -234,6 +235,7 @@ NOTES
         for k, raw in kv.items():
             if k not in CONFIG_KEYS:
                 print(f"Unknown config key: {k}", file=sys.stderr)
+                handled = False
                 continue
             updates[k] = _coerce_value(k, raw)
 
@@ -245,14 +247,16 @@ NOTES
         if "copy" in updates:
             print(f"Setting copy to {updates['copy']}. This will {'enable' if updates['copy'] else 'disable'} automatic copying of generated commands to the clipboard.")
             updates["copy"] = updates.pop("copy")
-            print(f"copy ios now set to {updates['copy']}")
+            print(f"copy is now set to {updates['copy']}")
+
         new_cfg = replace(cfg, **updates)
 
         # rebuild client if transport/auth/provider changed
         if any(k in updates for k in ("provider", "base_url", "openai_api_key", "bearer_token")):
             client = build_client(new_cfg)
 
-        print("OK")
+        if handled:
+            print("OK")
         return new_cfg, client
     
     if sub == "save":
@@ -476,7 +480,7 @@ def repl(client: OpenAI, cfg : AppConfig | None  = None):
             continue
         
         messages.append({"role": "user", "content": line})
-        messages = trim_messages(messages, keep_last_turns=keep_last_turns)
+        messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
 
         if line.startswith("!"):
             shell_cmd = line[1:].strip()
@@ -496,7 +500,7 @@ def repl(client: OpenAI, cfg : AppConfig | None  = None):
             messages.append({"role": "assistant", "content": raw})
             messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
 
-            if copy:
+            if copy and cmd:
                 pyperclip.copy(cmd)
             if cmd:
                 prefill = "!" + " ".join(cmd.splitlines()).strip()
