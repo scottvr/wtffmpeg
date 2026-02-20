@@ -31,14 +31,14 @@ def _read_text_file(p: Path, max_bytes: int = 256 * 1024) -> str:
 
 def _candidate_paths_in_dir(profile_dir: Path, name: str) -> list[Path]:
     # Try exact then with .txt
-    return [profile_dir / name, profile_dir / f"{name}.txt"]
+    return [f"{profile_dir}/{name}", f"{profile_dir} / f{name}.txt"]
 
 def list_profiles(profile_dir: Path | None = None) -> dict[str, list[str]]:
     """
     Return available profiles grouped by source.
     Values are *names* (without .txt normalization guarantees).
     """
-    pd = profile_dir or DEFAULT_PROFILE_DIR
+    pd = profile_dir or 'minimal' 
 
     user_names: set[str] = set()
     if pd.exists() and pd.is_dir():
@@ -78,7 +78,8 @@ def load_profile(profile_spec: str, profile_dir: Path | None = None) -> Profile:
         raise ValueError("Empty profile spec")
 
     spec = profile_spec.strip()
-    pd = profile_dir or DEFAULT_PROFILE_DIR
+    pd = Path(profile_dir)  or "~/.wtffmpeg/profiles" 
+    
 
     if _looks_like_path(spec):
         p = Path(spec).expanduser()
