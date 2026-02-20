@@ -1,68 +1,57 @@
+from __future__ import annotations
+
 import sys
 import subprocess
-import pyperclip
 import shlex
-from pathlib import Path
 from dataclasses import replace
+from pathlib import Path
+
+import pyperclip
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from pypager.pager import Pager
-from pypager.source import StringSource
-from pygments.lexers.python import PythonLexer
-from prompt_toolkit.styles import Style
-from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.styles import Style
+from prompt_toolkit.application import get_app
 from prompt_toolkit import print_formatted_text as print
 from prompt_toolkit.formatted_text import HTML
-from prompt_toolkit.application import get_app
 
-from .llm import generate_ffmpeg_command, verify_connection
-from .config import AppConfig
-from .llm import build_client
-from .profiles import Profile
+from pygments.lexers.python import PythonLexer
+from pypager.pager import Pager
+from pypager.source import StringSource
+
+from .llm import generate_ffmpeg_command, verify_connection, build_client
+from .config import (
+    AppConfig,
+    CONFIG_KEYS,
+    PERSIST_KEYS,
+    DEFAULT_CONFIG_PATH,
+    apply_overrides,
+    load_config,
+    save_config,
+    normalize_base_url,
+)
 from .profiles import load_profile, list_profiles
+from .config import resolve_profile
 
-matrix_style = Style.from_dict({
-    # The prompt itself
-    'prompt': 'ansigreen bold',
-    
-    # Syntax highlighting (pygments tokens)
-    'pygments.keyword': '#00ff00 bold',
-    'pygments.string': '#aaffaa',
-    'pygments.comment': '#008800',
-    'pygments.name.function': '#00ff00',
-    'pygments.operator': '#00ff00',
-    
-    # Background and default text
-    '': 'bg:#000000 #00ff00',
-})
-
+matrix_style = Style.from_dict(
+    {
+        "prompt": "ansigreen bold",
+        "pygments.keyword": "#00ff00 bold",
+        "pygments.string": "#aaffaa",
+        "pygments.comment": "#008800",
+        "pygments.name.function": "#00ff00",
+        "pygments.operator": "#00ff00",
+        "": "bg:#000000 #00ff00",
+    }
+)
 
 CMD_HISTFILE = Path.home() / ".wtff_history"
 
-CONFIG_KEYS = {
-    "model",
-    "provider",
-    "base_url",
-    "openai_api_key",
-    "bearer_token",
-    "context_turns",
-    "profile",
-    "copy",
-}
-
-PERSIST_KEYS = {
-    "model",
-    "provider",
-    "base_url",
-    "context_turns",
-    "profile",
-    "copy",
-}
 
 def _parse_kv(tokens: list[str]) -> dict[str, str]:
-    out = {}
+    out: dict[str, str] = {}
     for t in tokens:
         if "=" not in t:
             raise ValueError(f"Expected key=value, got: {t}")
@@ -70,19 +59,21 @@ def _parse_kv(tokens: list[str]) -> dict[str, str]:
         out[k.strip()] = v.strip()
     return out
 
+
 def _coerce_value(key: str, raw: str):
     v = raw.strip()
     if v.lower() in ("none", "null"):
         return None
     if key in ("context_turns",):
         return int(v)
-    if key in ("copy",):
+    if key in ("copy", "no_nag"):
         if v.lower() in ("1", "true", "yes", "on"):
             return True
         if v.lower() in ("0", "false", "no", "off"):
             return False
         raise ValueError(f"Bad boolean for {key}: {raw}")
     return v
+
 
 def _sanitize_cfg(cfg: AppConfig) -> dict:
     return {
@@ -92,20 +83,24 @@ def _sanitize_cfg(cfg: AppConfig) -> dict:
         "openai_api_key": ("(set)" if cfg.openai_api_key else "(unset)"),
         "bearer_token": ("(set)" if cfg.bearer_token else "(unset)"),
         "context_turns": cfg.context_turns,
-        "profile": cfg.profile.name,
-        "copy": cfg.copy,  # or wherever you store it
+        "profile": resolve_profile(cfg).name,
+        "copy": cfg.copy,
+        "no_nag": cfg.no_nag,
     }
 
 
-def handle_config_command(cmdline: str, session: PromptSession, cfg: AppConfig, client) -> tuple[AppConfig, object]:
+def _transport_changed(a: AppConfig, b: AppConfig) -> bool:
+    keys = ("provider", "base_url", "openai_api_key", "bearer_token")
+    return any(getattr(a, k) != getattr(b, k) for k in keys)
 
-    # cmdline is the full line starting with "/config ..."
+
+def handle_config_command(cmdline: str, *, session: PromptSession, cfg: AppConfig, client):
+    """Handle '/config ...' commands. Returns (new_cfg, new_client)."""
     parts = shlex.split(cmdline)
-    # parts[0] == "/config"
     sub = parts[1] if len(parts) > 1 else "show"
+
     if sub == "help":
-        outstr =""" 
-  /config — inspect and modify runtime configuration
+        outstr = """/config — inspect and modify runtime configuration
 
 USAGE
 
@@ -123,97 +118,23 @@ USAGE
       Set one or more configuration values for the current session.
 
   /config unset <key> [<key> ...]
-      Clear one or more configuration values (sets to None).
+      Clear one or more configuration values (sets to None where allowed).
 
   /config reset
-      Reset configuration back to startup defaults.
+      Reset configuration back to startup defaults (from CLI/env/file).
 
   /config save [path]
       Save current persistent configuration to file.
-      Default path: ~/.wtffmpeg/config.env
+      Default: ~/.wtffmpeg/config.env
 
   /config load [path]
       Load configuration from file and apply it.
-      Default path: ~/.wtffmpeg/config.env
-
-
-COMMON SHORTCUTS
-
-  /model <name>
-      Equivalent to: /config set model=<name>
-
-  /provider <name>
-      Equivalent to: /config set provider=<name>
-
-  /url <base_url>
-      Equivalent to: /config set base_url=<base_url>
-
-  /profile <name>
-      Equivalent to: /config set profile=<name>
-
-
-CONFIGURABLE KEYS
-
-  model
-      Model name used for requests.
-
-  provider
-      LLM provider (e.g. openai, compat).
-
-  base_url
-      OpenAI-compatible endpoint base URL.
-
-  openai_api_key
-      API key for OpenAI provider.
-      WARNING: Not displayed in plaintext.
-
-  bearer_token
-      Bearer token for compat provider.
-      WARNING: Not displayed in plaintext.
-
-  context_turns
-      Number of previous turns retained in context window.
-
-  profile
-      Active profile name.
-
-  copy
-      If true, copy generated ffmpeg command to clipboard automatically.
-
-
-VALUE RULES
-
-  key=value format is required.
-  Strings may be quoted.
-  Booleans accept: true/false, 1/0, yes/no.
-  None values: none or null.
-
-
-PERSISTENCE
-
-  Only non-secret keys are saved by default:
-      model
-      provider
-      base_url
-      context_turns
-      profile
-      copy
-
-  API keys and bearer tokens are NOT written unless explicitly supported
-  by future options.
-
-  Saved format is a simple key=value file.
-
-
-NOTES
-
-  Changing provider, base_url, or authentication will rebuild the client.
-  Changes take effect immediately for subsequent requests.
-  Configuration changes apply only to the current session unless saved.
+      Default: ~/.wtffmpeg/config.env
 """
         pager = Pager()
         pager.add_source(StringSource(outstr))
         pager.run()
+        return cfg, client
 
     if sub in ("show",):
         print(_sanitize_cfg(cfg))
@@ -224,36 +145,96 @@ NOTES
             print(k)
         return cfg, client
 
+    if sub == "get":
+        keys = parts[2:] or []
+        if not keys:
+            print(_sanitize_cfg(cfg))
+            return cfg, client
+        for k in keys:
+            if k not in CONFIG_KEYS:
+                print(f"Unknown config key: {k}", file=sys.stderr)
+                continue
+            v = getattr(cfg, k)
+            if k in ("openai_api_key", "bearer_token"):
+                v = "(set)" if v else "(unset)"
+            if k == "profile":
+                v = resolve_profile(cfg).name
+            print(f"{k}={v}")
+        return cfg, client
+
     if sub == "set":
         kv = _parse_kv(parts[2:])
         updates = {}
         for k, raw in kv.items():
             if k not in CONFIG_KEYS:
-                raise ValueError(f"Unknown key: {k}")
+                print(f"Unknown config key: {k}", file=sys.stderr)
+                continue
             updates[k] = _coerce_value(k, raw)
 
-        # special: profile needs loading
+        if "base_url" in updates and updates["base_url"]:
+            updates["base_url"] = normalize_base_url(str(updates["base_url"]))
+
         if "profile" in updates:
-            prof = load_profile(str(updates["profile"]), cfg.profile_dir)
-            updates["profile"] = prof
+            updates["profile"] = load_profile(str(updates["profile"]), cfg.profile_dir)
 
-        if "copy" in updates:
-            updates["copy"] = updates.pop("copy")
-
-        new_cfg = replace(cfg, **updates)
-
-        # rebuild client if transport/auth/provider changed
-        if any(k in updates for k in ("provider", "base_url", "openai_api_key", "bearer_token")):
-            client = build_client(new_cfg)
+        new_cfg = apply_overrides(cfg, updates)
+        new_client = client
+        if _transport_changed(cfg, new_cfg):
+            new_client = build_client(new_cfg)
 
         print("OK")
-        return new_cfg, client
+        return new_cfg, new_client
 
-    # save
-    #
-    # load
-    # 
-    # /save etc...
+    if sub == "unset":
+        keys = parts[2:]
+        updates = {}
+        for k in keys:
+            if k not in CONFIG_KEYS:
+                print(f"Unknown config key: {k}", file=sys.stderr)
+                continue
+            if k == "profile":
+                # keep profile always valid; interpret unset as default
+                updates["profile"] = load_profile("minimal", cfg.profile_dir)
+            elif k in ("model", "provider", "context_turns", "copy", "no_nag"):
+                print(f"Cannot unset required key: {k}", file=sys.stderr)
+            else:
+                updates[k] = None
+
+        new_cfg = apply_overrides(cfg, updates)
+        new_client = client
+        if _transport_changed(cfg, new_cfg):
+            new_client = build_client(new_cfg)
+        print("OK")
+        return new_cfg, new_client
+
+    if sub == "save":
+        path = Path(parts[2]) if len(parts) > 2 else DEFAULT_CONFIG_PATH
+        save_config(cfg, path=path, keys=PERSIST_KEYS)
+        print(f"Configuration saved to {path}")
+        return cfg, client
+
+    if sub == "load":
+        path = Path(parts[2]) if len(parts) > 2 else DEFAULT_CONFIG_PATH
+        data = load_config(path)
+        if not data and not path.exists():
+            print(f"No config file found at {path}", file=sys.stderr)
+            return cfg, client
+
+        # 'profile' in file is a name -> load Profile object
+        if "profile" in data:
+            data["profile"] = load_profile(str(data["profile"]), cfg.profile_dir)
+
+        new_cfg = apply_overrides(cfg, data)
+        new_client = client
+        if _transport_changed(cfg, new_cfg):
+            new_client = build_client(new_cfg)
+
+        print(f"Configuration loaded from {path}")
+        return new_cfg, new_client
+
+    print(f"Unknown /config subcommand: {sub}", file=sys.stderr)
+    return cfg, client
+
 
 def execute_command(command: str) -> int:
     """Execute a shell command, streaming output. Returns exit code."""
@@ -276,52 +257,44 @@ def execute_command(command: str) -> int:
         return 1
 
 
-def print_command(cmd: str):
-    print("Press enter to execute the command at your prompt immediately",
-          " or edit it as needed. You can also copy/paste it elsewhere.",
-          " To run shell commands directly, prefix with ! (e.g. !ls -la).")
+def nag():
+    print(
+        "Press enter to execute the command at your prompt immediately"
+        " or edit it as needed. You can also copy/paste it elsewhere."
+        " To run shell commands directly, prefix with ! (e.g. !ls -la)."
+        " Remove this reminder with --no-nag or /config set no_nag=true."
+    )
 
-def single_shot(prompt: str, client: OpenAI, model: str,  copy: bool,  profile: Profile) -> int:
+
+def single_shot(*, client, cfg: AppConfig) -> int:
+    """Run exactly one prompt (cfg.prompt_once) and exit."""
+    if not cfg.prompt_once:
+        print("single_shot called without cfg.prompt_once", file=sys.stderr)
+        return 2
+
     messages = [
-        {"role": "system", "content": profile.text},
-        {"role": "user", "content": prompt},
+        {"role": "system", "content": resolve_profile(cfg).text},
+        {"role": "user", "content": cfg.prompt_once},
     ]
 
-    raw, cmd = generate_ffmpeg_command(messages, client, model)
+    raw, cmd = generate_ffmpeg_command(messages, client, cfg.model)
     if not cmd:
         print("Failed to generate a command.", file=sys.stderr)
+        print(raw)
         return 1
 
     print(cmd)
 
-    if cmd and copy:
+    if cfg.copy:
         pyperclip.copy(cmd)
         print("Command copied to clipboard.")
 
     return 0
 
 
-
-def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, profile: Profile, copy: bool = False, cfg : AppConfig | None  = None):
-    def get_toolbar():
-#        try:
-#            width = get_app().output.get_size().columns
-#        except Exception:
-#            width = 80
-        width = get_app().output.get_size().columns
-
-        # Detect the current mode from the session state
-        bind_txt = "Vi" if session.editing_mode == EditingMode.VI else "Emacs"
-        copy_mode = "ON" if copy else "OFF"
-        copy_txt = f"Copy: {copy_mode}"
-        padding = width - len(bind_txt) - len(copy_txt) - 12  
-        if padding < 1:
-            padding = 1
-        return HTML(f'<b>[Mode: {bind_txt}]</b> {" " * padding} <b>{copy_txt}</b>')
-    
+def repl(*, client, cfg: AppConfig):
     def _client_base_url(client) -> str | None:
         for attr in ("base_url", "_base_url"):
-            print("debug: looking for client attr", attr)
             v = getattr(client, attr, None)
             if v:
                 return str(v)
@@ -331,129 +304,161 @@ def repl(preload: str | None, client: OpenAI, model: str, keep_last_turns: int, 
         history=FileHistory(str(CMD_HISTFILE)),
         auto_suggest=AutoSuggestFromHistory(),
     )
-    messages = [{"role": "system", "content": profile.text}]
 
-    if preload:
-        messages.append({"role": "user", "content": preload})    # preload is "safe landing": run once, then drop into repl
+    def get_toolbar():
+        try:
+            width = get_app().output.get_size().columns
+        except Exception:
+            width = 80
 
-        messages = trim_messages(messages, keep_last_turns=keep_last_turns)
-        raw, cmd = generate_ffmpeg_command(
-            messages, client, model=model
-        )
+        bind_txt = "Vi" if session.editing_mode == EditingMode.VI else "Emacs"
+        copy_txt = f"Copy: {'ON' if cfg.copy else 'OFF'}"
+        padding = width - len(bind_txt) - len(copy_txt) - 12
+        if padding < 1:
+            padding = 1
+        return HTML(f"<b>[Mode: {bind_txt}]</b> {' ' * padding} <b>{copy_txt}</b>")
+
+    messages = [{"role": "system", "content": resolve_profile(cfg).text}]
+
+    # preload: run once, then drop into repl with prefilled !cmd
+    prefill = ""
+    if cfg.preload_prompt:
+        messages.append({"role": "user", "content": cfg.preload_prompt})
+        messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
+        raw, cmd = generate_ffmpeg_command(messages, client, model=cfg.model)
         if cmd:
             messages.append({"role": "assistant", "content": raw})
-            messages = trim_messages(messages, keep_last_turns=keep_last_turns)
-            pyperclip.copy(cmd)
+            messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
+            if cfg.copy:
+                pyperclip.copy(cmd)
+            prefill = "!" + " ".join(cmd.splitlines()).strip()
 
-    print("Entering interactive mode. Type 'exit'/'quit'/'logout' to leave. Use !<cmd> to run shell commands.")
+    print("Entering interactive mode. Type 'exit'/'quit' to leave. Use !<cmd> to run shell commands.")
+    if not cfg.no_nag:
+        nag()
 
-    prefilled = True if preload else False
     while True:
-        if prefilled:
-            prefill = "!" + " ".join(cmd.splitlines()).strip() if cmd else ""
-            prefilled = False
         try:
-            line = session.prompt("wtff> ", 
-                default=str(prefill) if 'prefill' in locals() else "", 
+            line = session.prompt(
+                "wtff> ",
+                default=prefill,
                 lexer=PygmentsLexer(PythonLexer),
                 bottom_toolbar=get_toolbar,
-                rprompt=lambda: f"{profile.name} | {cfg.model} |",
-                style=matrix_style
+                rprompt=lambda: f"{resolve_profile(cfg).name} | {cfg.model} |",
+                style=matrix_style,
             )
         except (EOFError, KeyboardInterrupt):
             print("\nExiting interactive mode.")
             return
-        
 
+        prefill = ""
         if not line:
             continue
-        
-        prefill = ""
-        cmd = line[1:].strip().lower()
-       
-        if cmd in ("exit", "quit", "logout", ":q", ":q!"):
+
+        # explicit exits
+        if line.strip().lower() in ("exit", "quit", "logout", ":q", ":q!"):
+            print("\nExiting interactive mode.")
             return
 
+        # /slash commands
         if line.startswith("/"):
-            if cmd  in ("help", "h", "?"):
+            cmd = line[1:].strip().lower()
+
+            if cmd in ("exit", "quit", "logout", ":q", ":q!"):
+                print("\nExiting interactive mode.")
+                return
+
+            if cmd in ("help", "h", "?"):
                 print("Available /commands:")
                 print("  /help, /h, /? - Show this help message")
                 print("  /ping - Check LLM connectivity")
                 print("  /reset - Clear conversation history (keep system prompt)")
-                print("  /profile - Show current profile info")
+                print("  /profile - Show current profile")
                 print("  /profiles - List available profiles")
-                print("  /config - View and modify configuration (type /config help for details)") 
-                print("  /bindings - List special keybindings (e.g. for Vi/Emacs modes)")
-                print("  /q|quit|/exit|/logout - Exit the REPL")
+                print("  /config - View and modify configuration (/config help)")
+                print("  /bindings [vi|emacs] - Switch keybindings")
+                print("  /q|/quit|/exit|/logout - Exit the REPL")
                 print("- Use !<command> to execute shell commands")
-                print("- Just type in natural language to generate ffmpeg commands.")
-                print("- See the README in github.com/scottvr/wtffmpeg.") 
                 continue
 
-            elif cmd in ("ping"):
+            if cmd == "ping":
                 try:
                     verify_connection(client, base_url=_client_base_url(client))
                     print("LLM connectivity: OK")
                 except RuntimeError as e:
                     print(str(e), file=sys.stderr)
-            elif cmd == "reset":
-                messages = messages[:1]  # keep system prompt
+                continue
+
+            if cmd == "reset":
+                messages = messages[:1]
                 print("Conversation history cleared.")
-            elif cmd == "profile":
-                print(f"Current profile: {profile.name}")
-                print(profile.text)
-            elif cmd == "profiles":
-                avail = list_profiles()
+                continue
+
+            if cmd == "profile":
+                print(f"Current profile: {resolve_profile(cfg).name}")
+                print(resolve_profile(cfg).text)
+                continue
+
+            if cmd == "profiles":
+                avail = list_profiles(cfg.profile_dir)
                 print("User profiles:")
                 for n in avail["user"]:
                     print(f"  {n}")
                 print("Built-in profiles:")
                 for n in avail["builtin"]:
                     print(f"  {n}")
-            elif cmd.startswith(f"config"):
-                handle_config_command(line, session=session, cfg=cfg, client=client)
-            elif cmd.startswith("bindings"):
-                mode = line[len("/bindings"):].strip().lower()
+                continue
+
+            if cmd.startswith("config"):
+                cfg, client = handle_config_command(line, session=session, cfg=cfg, client=client)
+                continue
+
+            if cmd.startswith("bindings"):
+                mode = cmd[len("bindings") :].strip()
                 if mode == "vi":
                     session.editing_mode = EditingMode.VI
                     print("Switched to Vi mode.")
                 elif mode == "emacs":
                     session.editing_mode = EditingMode.EMACS
                     print("Switched to Emacs mode.")
-            else:
-                print(f"Unknown command: {line}", file=sys.stderr)
-            continue
-        
-        messages.append({"role": "user", "content": line})
-        messages = trim_messages(messages, keep_last_turns=keep_last_turns)
+                else:
+                    print("Usage: /bindings vi|emacs")
+                continue
 
+            print(f"Unknown command: {line}", file=sys.stderr)
+            continue
+
+        # !shell commands
         if line.startswith("!"):
             shell_cmd = line[1:].strip()
             if shell_cmd:
                 rc = execute_command(shell_cmd)
                 if rc != 0:
                     print(f"Shell command exited {rc}", file=sys.stderr)
-                    preload = None
-        else:
-            raw, cmd = generate_ffmpeg_command(messages, client, model)
-            if not cmd:
-                print("Failed to generate a command.", file=sys.stderr)
-                print(raw)
-                messages.pop()
-                continue
+            continue
 
-            messages.append({"role": "assistant", "content": raw})
-            messages = trim_messages(messages, keep_last_turns=keep_last_turns)
+        # LLM request
+        messages.append({"role": "user", "content": line})
+        messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
 
-            if copy:
-                pyperclip.copy(cmd)
-            if cmd:
-                prefill = "!" + " ".join(cmd.splitlines()).strip()
+        raw, cmd = generate_ffmpeg_command(messages, client, cfg.model)
+        if not cmd:
+            print("Failed to generate a command.", file=sys.stderr)
+            print(raw)
+            messages.pop()
+            continue
+
+        messages.append({"role": "assistant", "content": raw})
+        messages = trim_messages(messages, keep_last_turns=cfg.context_turns)
+
+        if cfg.copy:
+            pyperclip.copy(cmd)
+        prefill = "!" + " ".join(cmd.splitlines()).strip()
+
 
 def trim_messages(messages: list[dict], keep_last_turns: int = 12) -> list[dict]:
     if keep_last_turns <= 0:
-        # keep only system
-        return messages[:1]
+        return messages[:1]  # keep only system
 
     system = messages[0:1]
     rest = messages[1:]

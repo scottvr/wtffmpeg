@@ -53,8 +53,18 @@ def generate_ffmpeg_command(messages: list[dict], client: OpenAI, model: str) ->
 
         if text.startswith("`") and text.endswith("`"):
             text = text.strip("`")
-
-        return raw, text
+        if not text.lower().startswith("ffmpeg"):
+            # maybe it's a comment + command; try to extract the command
+            lines = text.splitlines()
+            for line in lines:
+                line = line.strip()
+                if line.startswith("ffmpeg"):
+                    text = line
+                    break   
+        if text.lower().startswith("ffmpeg"):
+            return raw, text
+        else:
+            return raw, ""
     except Exception as e:
         print(f"Error during model inference: {e}", file=sys.stderr)
         return "", ""

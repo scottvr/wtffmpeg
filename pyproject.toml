@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wtffmpeg"
-version = "0.2.3"
+version = "0.2.4"
 description = "A command-line tool to translate natural language to ffmpeg commands using a local LLM."
 # You can change the author name and email.
 authors = [
