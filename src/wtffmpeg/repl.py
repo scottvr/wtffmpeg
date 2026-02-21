@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from operator import sub
 import sys
 import subprocess
 import shlex
@@ -20,6 +21,7 @@ from prompt_toolkit.formatted_text import HTML
 from pygments.lexers.python import PythonLexer
 from pypager.pager import Pager
 from pypager.source import StringSource
+from wtffmpeg.runtime import RuntimeState, reconcile_runtime
 
 from .llm import generate_ffmpeg_command, verify_connection, build_client
 from .config import (
@@ -136,16 +138,16 @@ USAGE
         pager.run()
         return cfg, client
 
-    if sub in ("show",):
+    elif sub in ("show",):
         print(_sanitize_cfg(cfg))
         return cfg, client
 
-    if sub == "keys":
+    elif sub == "keys":
         for k in sorted(CONFIG_KEYS):
             print(k)
         return cfg, client
 
-    if sub == "get":
+    elif sub == "get":
         keys = parts[2:] or []
         if not keys:
             print(_sanitize_cfg(cfg))
@@ -162,7 +164,7 @@ USAGE
             print(f"{k}={v}")
         return cfg, client
 
-    if sub == "set":
+    elif sub == "set":
         kv = _parse_kv(parts[2:])
         updates = {}
         for k, raw in kv.items():
@@ -185,7 +187,7 @@ USAGE
         print("OK")
         return new_cfg, new_client
 
-    if sub == "unset":
+    elif sub == "unset":
         keys = parts[2:]
         updates = {}
         for k in keys:
@@ -207,13 +209,13 @@ USAGE
         print("OK")
         return new_cfg, new_client
 
-    if sub == "save":
+    elif sub == "save":
         path = Path(parts[2]) if len(parts) > 2 else DEFAULT_CONFIG_PATH
         save_config(cfg, path=path, keys=PERSIST_KEYS)
         print(f"Configuration saved to {path}")
         return cfg, client
 
-    if sub == "load":
+    elif sub == "load":
         path = Path(parts[2]) if len(parts) > 2 else DEFAULT_CONFIG_PATH
         data = load_config(path)
         if not data and not path.exists():
@@ -231,8 +233,9 @@ USAGE
 
         print(f"Configuration loaded from {path}")
         return new_cfg, new_client
+    else:
+        print(f"Unknown /config subcommand: {sub}", file=sys.stderr)
 
-    print(f"Unknown /config subcommand: {sub}", file=sys.stderr)
     return cfg, client
 
 
@@ -300,6 +303,9 @@ def repl(*, client, cfg: AppConfig):
                 return str(v)
         return None
 
+    rt = RuntimeState()
+    reconcile_runtime(cfg, rt, force=True)
+
     session = PromptSession(
         history=FileHistory(str(CMD_HISTFILE)),
         auto_suggest=AutoSuggestFromHistory(),
@@ -361,7 +367,7 @@ def repl(*, client, cfg: AppConfig):
             return
 
         # /slash commands
-        if line.startswith("/"):
+        elif line.startswith("/"):
             cmd = line[1:].strip().lower()
 
             if cmd in ("exit", "quit", "logout", ":q", ":q!"):
@@ -389,17 +395,17 @@ def repl(*, client, cfg: AppConfig):
                     print(str(e), file=sys.stderr)
                 continue
 
-            if cmd == "reset":
+            elif cmd == "reset":
                 messages = messages[:1]
                 print("Conversation history cleared.")
                 continue
 
-            if cmd == "profile":
+            elif cmd == "profile":
                 print(f"Current profile: {resolve_profile(cfg).name}")
                 print(resolve_profile(cfg).text)
                 continue
 
-            if cmd == "profiles":
+            elif cmd == "profiles":
                 avail = list_profiles(cfg.profile_dir)
                 print("User profiles:")
                 for n in avail["user"]:
@@ -409,11 +415,11 @@ def repl(*, client, cfg: AppConfig):
                     print(f"  {n}")
                 continue
 
-            if cmd.startswith("config"):
+            elif cmd.startswith("config"):
                 cfg, client = handle_config_command(line, session=session, cfg=cfg, client=client)
                 continue
 
-            if cmd.startswith("bindings"):
+            elif cmd.startswith("bindings"):
                 mode = cmd[len("bindings") :].strip()
                 if mode == "vi":
                     session.editing_mode = EditingMode.VI
@@ -425,11 +431,12 @@ def repl(*, client, cfg: AppConfig):
                     print("Usage: /bindings vi|emacs")
                 continue
 
-            print(f"Unknown command: {line}", file=sys.stderr)
-            continue
+            else:
+                print(f"Unknown command: {line}", file=sys.stderr)
+                continue
 
         # !shell commands
-        if line.startswith("!"):
+        elif line.startswith("!"):
             shell_cmd = line[1:].strip()
             if shell_cmd:
                 rc = execute_command(shell_cmd)

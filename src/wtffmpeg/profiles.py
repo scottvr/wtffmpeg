@@ -89,7 +89,7 @@ def load_profile(profile_spec: str, profile_dir: Path | None = None) -> Profile:
         return Profile(name=p.name, source="path", path=p, text=text)
 
     for cand in _candidate_paths_in_dir(pd, spec):
-        if cand.exists():
+        if Path(cand).exists():
             text = _read_text_file(cand)
             return Profile(name=spec, source="user", path=cand, text=text)
 

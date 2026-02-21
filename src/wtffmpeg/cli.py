@@ -22,6 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p.add_argument(
         "-p",
+        "-x",
         "--prompt-once",
         dest="prompt_once",
         metavar="PROMPT",
