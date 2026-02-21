@@ -417,6 +417,7 @@ def repl(*, client, cfg: AppConfig):
 
             elif cmd.startswith("config"):
                 cfg, client = handle_config_command(line, session=session, cfg=cfg, client=client)
+                reconcile_runtime(cfg, rt)                 
                 continue
 
             elif cmd.startswith("bindings"):
