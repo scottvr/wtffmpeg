@@ -28,13 +28,15 @@ Being able to do something like
 ```
 wtffmpeg> ok now just like that,
 but have it create chapters in the
-video container, using points when
-audio is below some threshold for
+video container, using periods when
+audio drops below some threshold for
 more than 100 milliseconds"
 ```
-and to have the LLM know what "just like that" means, because it knows what command you are referring to, is quite powerful. As is the ability to navigate your command (and prompt) history as you would in your normal shell cli shouldn't be understated.
+and to have the LLM know what "_just like that_" means, because it knows the previous command you are referring to and what its answer to you was, is quite powerful. As is the ability to navigate your command (and prompt) history as you would in your normal shell cli shouldn't be understated. Importantly, although the LLM has all of its full "thoughts" about its response in its short term context memory, it never clutters your interface, so you never have to read through paragraphs about what ffmpeg is, how it can be used, etc while relating it to something that shows how "thoughtful" you are, in that obsequious LLM-as-sycophant manner we all know. But the context is not lost: you have a shell-like command and prompt history you can scroll through, and the LLM has the whole conversation in context. It turns out to be a very capable implementation for getting this kind of work out of an LLLM, and unlike whatever **hype-of-the-week** agent is flooding your newsfeeds this week is doing, wtffmpeg is not executing any commands on your behalf. They all just appear as if by magic at your command-line for you to execute or not. No back-and-forth dialog, no worries about its autonomy; you maintain control. (And by the same token, you only have yourself to blame if you erase your hard drive or something, because *you* execute the commands, and without the risk of reading or typing something incorrectly, or pasting the wrong buffer into your terminal, etc. 
 
-The truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them interspersed throughout bash logic, there are very few things I get right every tiime. 
+# W can also stand for WHY
+
+So, **WHY**T_Ffmpeg_? The truth is, that even as a capable long-time user of ffmpeg, even when I have historically arrived at very complicated ffmpeg command-lines or piped-together chains of commands, or long batches of them interspersed throughout bash logic, there are very few things I get right every tiime. 
 
 ## On the WTFF UI and the LLM use case
 
@@ -62,7 +64,7 @@ _So_... **if** I acknowledge that as the truth, then using **wtffmpeg** as a REP
 
 
 
-# Usage
+## Usage
 ```
 Translate natural language to an ffmpeg command.
 
