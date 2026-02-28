@@ -20,8 +20,7 @@ It is intended to eliminate a common workflow where you know that ffmpeg is the 
 And repeat that workflow each and every time the occasion arises where ffmpeg comes to mind as the right tool for the job. (because it likely is the right tool for the job.)
 
 ----
-To help with that,  `wtffmpeg` is designed to help you get what you want by saying what you want. It is not a "GUI for ffmpeg". It is still a console tool like your shell, and ffmpeg is still executed idempotently - stateless and atomic in its execution, isolated from all previous invocations. ffmpeg is a _pure function_. `wtffmpeg` is the stochastic shell, that also happens to be pretty savant-like in its auto-completion and competent in its interpretataion of *DWIM*. Like the mighty ffmpeg, `wtffmpeg` is still a CLI;  
-the command is the point. 
+To help with that,  `wtffmpeg` is designed to help you get what you want by saying what you want. It is not a "GUI for ffmpeg". It is still a console tool like your shell, and ffmpeg is still executed idempotently - stateless and atomic in its execution, isolated from all previous invocations. ffmpeg is a _pure function_. `wtffmpeg` is the stochastic shell, that also happens to be pretty savant-like in its auto-completion and competent in its interpretataion of *DWIM*. Like the mighty ffmpeg, `wtffmpeg` is still a CLI;  the command is the point. 
 
 Its REPL was intended as an **assisted cli explorer**, not just a **one-shot command guesser with a cheat sheet**. The importance of conversation history in the LLM's context  **should not be underestimated**.
 
