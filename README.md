@@ -54,7 +54,7 @@ _So_, if I am honest, I will admit that *every* `ffmpeg` session that accomplish
 
 _So_... **if** I acknowledge that as the truth, then using **wtffmpeg** as a REPL for `ffmpeg`, **and** it very often being *at least as correct* on the first shot as I would have been  had I gone it alone... **and** with search engines being a continually decreasing return on investment of our time, while inexplicably we continue to go back in hopes that search enshittification is over with, _and_...
 
-### Let's be honest here: 
+### Let's be pragmatic: 
 - LLMs today are every bit as *close to correct* as most users on the first shot.
 - I'd wager that they are *better* than most users, very nearly *most of the time* in fact.
 - "normal" `ffmpeg` _usage_ already involves multiple tries and experimentation for complicated tasks. User success is probabalistic. 
