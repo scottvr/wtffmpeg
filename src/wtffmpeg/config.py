@@ -150,6 +150,14 @@ def apply_overrides(cfg: AppConfig, overrides: dict[str, Any]) -> AppConfig:
     """Apply a dict of overrides onto an AppConfig, handling special fields."""
     updates: dict[str, Any] = dict(overrides)
 
+    # Accept "profile" as an alias and normalize to profile_name.
+    if "profile" in updates:
+        raw_profile = updates.pop("profile")
+        if isinstance(raw_profile, Profile):
+            updates["profile_name"] = raw_profile.name
+        elif raw_profile is not None:
+            updates["profile_name"] = str(raw_profile)
+
     # profile is stored as a name (string)
     # normalize base_url if present and non-empty
     if "base_url" in updates and updates["base_url"]:

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from operator import sub
 import sys
 import subprocess
 import shlex
-from dataclasses import replace
 from pathlib import Path
 
 import pyperclip
@@ -21,13 +19,14 @@ from prompt_toolkit.formatted_text import HTML
 from pygments.lexers.python import PythonLexer
 from pypager.pager import Pager
 from pypager.source import StringSource
-from wtffmpeg.runtime import RuntimeState, reconcile_runtime
+from .runtime import RuntimeState, reconcile_runtime
 
 from .llm import generate_ffmpeg_command, verify_connection, build_client
 from .config import (
     AppConfig,
     CONFIG_KEYS,
     PERSIST_KEYS,
+    DEFAULT_PROFILE_NAME,
     DEFAULT_CONFIG_PATH,
     apply_overrides,
     load_config,
@@ -156,11 +155,12 @@ USAGE
             if k not in CONFIG_KEYS:
                 print(f"Unknown config key: {k}", file=sys.stderr)
                 continue
+            if k == "profile":
+                print(f"{k}={cfg.profile_name}")
+                continue
             v = getattr(cfg, k)
             if k in ("openai_api_key", "bearer_token"):
                 v = "(set)" if v else "(unset)"
-            if k == "profile":
-                v = resolve_profile(cfg).name
             print(f"{k}={v}")
         return cfg, client
 
@@ -177,7 +177,9 @@ USAGE
             updates["base_url"] = normalize_base_url(str(updates["base_url"]))
 
         if "profile" in updates:
-            updates["profile"] = load_profile(str(updates["profile"]), cfg.profile_dir)
+            profile_spec = str(updates.pop("profile"))
+            load_profile(profile_spec, cfg.profile_dir)  # validate
+            updates["profile_name"] = profile_spec
 
         new_cfg = apply_overrides(cfg, updates)
         new_client = client
@@ -196,7 +198,8 @@ USAGE
                 continue
             if k == "profile":
                 # keep profile always valid; interpret unset as default
-                updates["profile"] = load_profile("minimal", cfg.profile_dir)
+                load_profile(DEFAULT_PROFILE_NAME, cfg.profile_dir)  # validate
+                updates["profile_name"] = DEFAULT_PROFILE_NAME
             elif k in ("model", "provider", "context_turns", "copy", "no_nag"):
                 print(f"Cannot unset required key: {k}", file=sys.stderr)
             else:
@@ -222,9 +225,11 @@ USAGE
             print(f"No config file found at {path}", file=sys.stderr)
             return cfg, client
 
-        # 'profile' in file is a name -> load Profile object
+        # 'profile' in file is a name/path string
         if "profile" in data:
-            data["profile"] = load_profile(str(data["profile"]), cfg.profile_dir)
+            profile_spec = str(data.pop("profile"))
+            load_profile(profile_spec, cfg.profile_dir)  # validate
+            data["profile_name"] = profile_spec
 
         new_cfg = apply_overrides(cfg, data)
         new_client = client
@@ -396,7 +401,7 @@ def repl(*, client, cfg: AppConfig):
                 continue
 
             elif cmd == "reset":
-                messages = messages[:1]
+                messages = [{"role": "system", "content": resolve_profile(cfg).text}]
                 print("Conversation history cleared.")
                 continue
 
@@ -416,8 +421,14 @@ def repl(*, client, cfg: AppConfig):
                 continue
 
             elif cmd.startswith("config"):
+                old_profile = cfg.profile_name
                 cfg, client = handle_config_command(line, session=session, cfg=cfg, client=client)
-                reconcile_runtime(cfg, rt)                 
+                reconcile_runtime(cfg, rt)
+                if cfg.profile_name != old_profile:
+                    messages = [{"role": "system", "content": resolve_profile(cfg).text}]
+                    print("Profile changed; conversation history cleared.")
+                else:
+                    messages[0] = {"role": "system", "content": resolve_profile(cfg).text}
                 continue
 
             elif cmd.startswith("bindings"):

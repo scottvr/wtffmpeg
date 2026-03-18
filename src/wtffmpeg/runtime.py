@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, Any, Tuple
 from .profiles import load_profile
 from .llm import build_client
