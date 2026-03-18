@@ -1,4 +1,4 @@
-Update! Sorry to anyone that tried to run the code in main for the last week or so. wtffmpeg suffered a "works on my machine" moment when I pushed a commit where things were broken (or merged one, I did't look that hard, I just fixed it as soon as I noticed, after pulling from a repo to a machine that never had a working install of wtffmoeg before, and find it not to work. The shame is mine. It is fixed now.
+Update! Sorry to anyone that tried to run the code in main for the last week or so. wtffmpeg suffered a "works on my machine" moment when I pushed a commit where things were broken (or merged one, I did't look that hard, I just fixed it as soon as I noticed, after pulling from a repo to a machine that never had a working install of wtffmoeg before, and finding it not to work.) The shame is mine. It is fixed now.
 
 ----
 
