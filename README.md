@@ -1,4 +1,8 @@
-Update! I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here is **wtffmpeg** in action! I have moved much of the [excessive rambling to here](https://medium.com/@scott.vr/some-months-back-i-released-a-silly-tool-as-a-poc-console-repl-interface-to-a-local-llm-that-56ed5f7284ec?postPublishedType=repub), should you want some.
+Update! Sorry to anyone that tried to run the code in main for the last week or so. wtffmpeg suffered a "works on my machine" moment when I pushed a commit where things were broken (or merged one, I did't look that hard, I just fixed it as soon as I noticed, after pulling from a repo to a machine that never had a working install of wtffmoeg before, and find it not to work. The shame is mine. It is fixed now.
+
+----
+
+I have a tendency to use _1000 words_ when a picture might suffice. So, to make the point - before or instead of you reading all my sometimes rambling words below.  Here is **wtffmpeg** in action! I have moved much of the [excessive rambling to here](https://medium.com/@scott.vr/some-months-back-i-released-a-silly-tool-as-a-poc-console-repl-interface-to-a-local-llm-that-56ed5f7284ec?postPublishedType=repub), should you want some.
 
 https://github.com/user-attachments/assets/75222305-efe3-4581-9172-b6d76ad37eba
 
